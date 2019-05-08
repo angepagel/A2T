@@ -7,39 +7,6 @@ Based on map data Copyright (C) 2011 OpenStreetMap contributors <http://openstre
 Licensed under the Creative Commons Attribution-ShareAlike 2.0 license <http://creativecommons.org/licenses/by-sa/2.0/>
 -->
 
-<!-- generated on Wed Nov 30 12:18:33 2011 by SUMO netconvert Version 0.13.1
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/netconvertConfiguration.xsd">
-
-    <input>
-        <type-files value="erlangen.edgetypes.xml"/>
-        <osm-files value="erlangen.osm"/>
-    </input>
-
-    <output>
-        <output-file value="erlangen.net.xml"/>
-    </output>
-
-    <projection>
-        <proj.utm value="true"/>
-    </projection>
-
-    <edge_removal>
-        <remove-edges.isolated value="true"/>
-    </edge_removal>
-
-    <processing>
-        <osm.discard-tls value="true"/>
-        <no-turnarounds value="false"/>
-        <offset.disable-normalization value="true"/>
-        <roundabouts.guess value="true"/>
-        <junctions.join value="true"/>
-    </processing>
-
-</configuration>
--->
-
 <net version="0.13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/net_file.xsd">
 
     <location netOffset="0.00,0.00" convBoundary="644465.09,5491786.25,647071.55,5494795.98" origBoundary="10.998195,49.560791,11.034775,49.587847" projParameter="+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"/>
