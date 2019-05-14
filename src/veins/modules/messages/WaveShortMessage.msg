@@ -37,6 +37,11 @@ packet WaveShortMessage {
 	int wsmLength;
 	//Data of Wave Short Message
 	string wsmData = "Some Data";
+	
+	// -------------------------- A2T --------------------------
+	int posx;
+	int posy;
+	// -------------------------- A2T --------------------------
 
 	int senderAddress = 0;
 	int recipientAddress = -1;
