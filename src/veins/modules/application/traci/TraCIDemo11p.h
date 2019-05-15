@@ -44,6 +44,9 @@ class TraCIDemo11p : public BaseWaveApplLayer {
 		simtime_t lastDroveAt;
 		bool sentMessage;
 		int currentSubscribedServiceId;
+		// -------------------------- A2T --------------------------
+		simtime_t lastMessageSentAt;
+		// -------------------------- A2T --------------------------
 	protected:
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);

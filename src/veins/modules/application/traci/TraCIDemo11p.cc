@@ -28,6 +28,9 @@ void TraCIDemo11p::initialize(int stage) {
         sentMessage = false;
         lastDroveAt = simTime();
         currentSubscribedServiceId = -1;
+        // -------------------------- A2T --------------------------
+        lastMessageSentAt = simTime();
+        // -------------------------- A2T --------------------------
     }
 }
 
@@ -45,6 +48,8 @@ void TraCIDemo11p::onWSA(WaveServiceAdvertisment* wsa) {
 void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
     findHost()->getDisplayString().updateWith("r=16,green");
 
+    // -------------------------- Veins example original code --------------------------
+    /*
     if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
     if (!sentMessage) {
         sentMessage = true;
@@ -53,6 +58,19 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
         wsm->setSerial(3);
         scheduleAt(simTime() + 2 + uniform(0.01,0.2), wsm->dup());
     }
+    */
+    // -------------------------- Veins example original code --------------------------
+
+
+    // -------------------------- A2T --------------------------
+    if (traciVehicle->getTypeId() == "passenger")
+    {
+        EV << "======================= PASSENGER INFORMATION =======================" << endl;
+        EV << "WSM received by the Passenger vehicle." << endl;
+        EV << "Position of the ambulance: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << endl;
+    }
+    // -------------------------- A2T --------------------------
+
 }
 
 void TraCIDemo11p::handleSelfMsg(cMessage* msg) {
@@ -78,6 +96,8 @@ void TraCIDemo11p::handleSelfMsg(cMessage* msg) {
 void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
     BaseWaveApplLayer::handlePositionUpdate(obj);
 
+    // -------------------------- Veins example original code --------------------------
+    /*
     // stopped for for at least 10s?
     if (mobility->getSpeed() < 1) {
         if (simTime() - lastDroveAt >= 10 && sentMessage == false) {
@@ -103,4 +123,30 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
     else {
         lastDroveAt = simTime();
     }
+    */
+    // -------------------------- Veins example original code --------------------------
+
+
+    // -------------------------- A2T --------------------------
+    int broadcastInterval = 10;
+
+    if (traciVehicle->getTypeId() == "ambulance")
+    {
+        if (simTime() - lastMessageSentAt >= broadcastInterval) {
+            WaveShortMessage* wsm = new WaveShortMessage();
+            populateWSM(wsm);
+
+            wsm->setPosx(mobility->getCurrentPosition().x);
+            wsm->setPosy(mobility->getCurrentPosition().y);
+
+            EV << "======================= AMBULANCE BROADCAST =======================" << endl;
+            EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << endl;
+            EV << "Vehicle type id: " << traciVehicle->getTypeId() << endl;
+
+            lastMessageSentAt = simTime();
+            sendDown(wsm);
+        }
+    }
+    // -------------------------- A2T --------------------------
+
 }
