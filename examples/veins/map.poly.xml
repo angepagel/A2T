@@ -1,4 +1,4 @@
-<additionals xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+<additionals>
     <poly id="poly_0" color="red" fill="0" layer="0.00" shape="689.95,700.09 714.30,775.40 736.39,768.03 729.03,745.48 767.06,734.06 751.43,681.45 689.95,700.09"/>
     <poly id="poly_1" color="red" fill="0" layer="0.00" shape="705.55,632.88 718.76,653.82 738.09,643.19 727.14,623.86 705.55,632.88"/>
     <poly id="poly_10" color="red" fill="0" layer="0.00" shape="827.02,590.19 886.49,597.81 896.15,546.25 834.35,539.22 827.02,590.19"/>
