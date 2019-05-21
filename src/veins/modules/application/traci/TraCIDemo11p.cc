@@ -65,15 +65,40 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
     // -------------------------- A2T --------------------------
     if (traciVehicle->getTypeId() == "passenger")
     {
-        // Console output
         EV << "======================= PASSENGER INFORMATION =======================" << endl;
         EV << "WSM received by vehicle id:" << mobility->getNode()->getId() << "." << endl;
+        EV << "Vehicle driving on road id:" << mobility->getRoadId() << "." << endl;
+
         // Is the message emitted by an AMU ?
         if (wsm->getAmbulance())
         {
-            EV << "This message comes from an AMU." << endl;
+            // Euclidian distance from the AMU
+            double distance = sqrt(
+                    pow((mobility->getCurrentPosition().x - wsm->getPosx()), 2)
+                    + pow((mobility->getCurrentPosition().y - wsm->getPosy()), 2)
+                );
+
+            EV << "<!> This message comes from an AMU." << endl;
             EV << "Position of the AMU: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
-            // Actions!
+            EV << "Distance from the AMU: " << distance << "." << endl;
+
+            // Is the vehicle in the communication radius of the AMU ?
+            if (distance < wsm->getRadius())
+            {
+                EV << "<!> This vehicle is in the AMU communication radius." << endl;
+
+                // Is the vehicle on the same road as the AMU ?
+                if (wsm->getRoadId() == mobility->getRoadId())
+                {
+                    EV << "<!> This vehicle is on the same road as the AMU." << endl;
+                    EV << "Switching to lowest speed lane..." << endl;
+
+                    findHost()->getDisplayString().updateWith("r=16,blue");
+
+                    // Switch to lowest speed lane
+                    traciVehicle->changeLane(0, 1000);
+                }
+            }
         }
     }
     // -------------------------- A2T --------------------------
@@ -140,17 +165,23 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
     if (traciVehicle->getTypeId() == "ambulance")
     {
         if (simTime() - lastMessageSentAt >= broadcastInterval) {
-            WaveShortMessage* wsm = new WaveShortMessage(); // Creation of a new WSM object
+
+            // Creation of a new WSM object
+            WaveShortMessage* wsm = new WaveShortMessage();
             populateWSM(wsm);
+
+            int commRadius = 20; // How would this parameter affect the results of the simulation ?
 
             // Set the WSM informations
             wsm->setAmbulance(true);
+            wsm->setRoadId(mobility->getRoadId().c_str());
             wsm->setPosx(mobility->getCurrentPosition().x);
             wsm->setPosy(mobility->getCurrentPosition().y);
+            wsm->setRadius(commRadius);
 
-            // Console output
             EV << "======================= AMBULANCE BROADCAST =======================" << endl;
             EV << "WSM sent from AMU id:" << wsm->getSenderAddress() << "." << endl;
+            EV << "AMU driving on road id:" << wsm->getRoadId() << "." << endl;
             EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
 
             lastMessageSentAt = simTime();
