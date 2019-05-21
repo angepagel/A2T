@@ -41,6 +41,7 @@ packet WaveShortMessage {
 	// -------------------------- A2T --------------------------
 	int posx;
 	int posy;
+	bool ambulance;
 	// -------------------------- A2T --------------------------
 
 	int senderAddress = 0;
