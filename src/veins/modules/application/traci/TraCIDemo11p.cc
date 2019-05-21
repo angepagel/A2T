@@ -65,9 +65,16 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
     // -------------------------- A2T --------------------------
     if (traciVehicle->getTypeId() == "passenger")
     {
+        // Console output
         EV << "======================= PASSENGER INFORMATION =======================" << endl;
-        EV << "WSM received by the Passenger vehicle." << endl;
-        EV << "Position of the ambulance: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << endl;
+        EV << "WSM received by vehicle id:" << mobility->getNode()->getId() << "." << endl;
+        // Is the message emitted by an AMU ?
+        if (wsm->getAmbulance())
+        {
+            EV << "This message comes from an AMU." << endl;
+            EV << "Position of the AMU: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
+            // Actions!
+        }
     }
     // -------------------------- A2T --------------------------
 
@@ -128,23 +135,26 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
 
 
     // -------------------------- A2T --------------------------
-    int broadcastInterval = 10;
+    int broadcastInterval = 10; // How would this parameter affect the results of the simulation ?
 
     if (traciVehicle->getTypeId() == "ambulance")
     {
         if (simTime() - lastMessageSentAt >= broadcastInterval) {
-            WaveShortMessage* wsm = new WaveShortMessage();
+            WaveShortMessage* wsm = new WaveShortMessage(); // Creation of a new WSM object
             populateWSM(wsm);
 
+            // Set the WSM informations
+            wsm->setAmbulance(true);
             wsm->setPosx(mobility->getCurrentPosition().x);
             wsm->setPosy(mobility->getCurrentPosition().y);
 
+            // Console output
             EV << "======================= AMBULANCE BROADCAST =======================" << endl;
-            EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << endl;
-            EV << "Vehicle type id: " << traciVehicle->getTypeId() << endl;
+            EV << "WSM sent from AMU id:" << wsm->getSenderAddress() << "." << endl;
+            EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
 
             lastMessageSentAt = simTime();
-            sendDown(wsm);
+            sendDown(wsm); // Send the message to the lower layer
         }
     }
     // -------------------------- A2T --------------------------
