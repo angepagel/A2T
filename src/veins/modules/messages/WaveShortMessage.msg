@@ -39,9 +39,11 @@ packet WaveShortMessage {
 	string wsmData = "Some Data";
 	
 	// -------------------------- A2T --------------------------
+	bool ambulance;
+	string roadId;
 	int posx;
 	int posy;
-	bool ambulance;
+	int radius;
 	// -------------------------- A2T --------------------------
 
 	int senderAddress = 0;
