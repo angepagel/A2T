@@ -92,6 +92,10 @@ class TraCICommandInterface
 				bool changeVehicleRoute(const std::list<std::string>& roads);
 				double getLength();
 
+				// -------------------------- A2T --------------------------
+				void changeLane(uint8_t laneIndex, int32_t duration);
+				// -------------------------- A2T --------------------------
+
 			protected:
 				TraCICommandInterface* traci;
 				TraCIConnection* connection;

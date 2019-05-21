@@ -175,6 +175,30 @@ void TraCICommandInterface::Vehicle::changeRoute(std::string roadId, double trav
 	}
 }
 
+
+// -------------------------- A2T --------------------------
+void TraCICommandInterface::Vehicle::changeLane(uint8_t laneIndex, int32_t duration)
+{
+    /* SUMO variables are referenced using IDs
+     * See SUMO documentation at https://sumo.dlr.de/wiki/TraCI/Change_Vehicle_State
+     */
+
+    uint8_t variableId = 0x13; // CMD_CHANGELANE
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 2;
+    uint8_t laneIndexType = TYPE_BYTE;
+    /* laneIndex */
+    uint8_t durationType = TYPE_INTEGER;
+    /* duration */
+
+    EV << "Node id:" << nodeId << " on lane id:" << getLaneId() << " is switching from lane index " << getLaneIndex() << " to " <<  unsigned(laneIndex) << "." << endl;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << count << laneIndexType << laneIndex << durationType << duration);
+    ASSERT(buf.eof());
+}
+// -------------------------- A2T --------------------------
+
+
 double TraCICommandInterface::Vehicle::getLength() {
 	return traci->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
 }
