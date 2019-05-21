@@ -1,13 +1,66 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 
-194 Cars leaving the Computer Science Building and campus of the University of Erlangen-Nuremberg
-Copyright (C) 2008 Christoph Sommer <christoph.sommer@informatik.uni-erlangen.de>
-Licensed under the Creative Commons Attribution-ShareAlike 2.0 license <http://creativecommons.org/licenses/by-sa/2.0/>
--->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+	<vType id="passenger" speedFactor="normc(1.00,0.10,0.20,2.00)" vClass="passenger"/>
 
-<routes>
-   <vType id="vtype0" accel="2.6" decel="4.5" sigma="0.5" length="2.5" minGap="2.5" maxSpeed="14" color="1,1,0"/>
-   <route id="route0" edges="-39539626 -5445204#2 -5445204#1 113939244#2 -126606716 23339459 30405358#1 85355912 85355911#0 85355911#1 30405356 5931612 30350450#0 30350450#1 30350450#2 4006702#0 4006702#1 4900043 4900041#1"/>
-   <flow id="flow0" type="vtype0" route="route0" begin="0" period="3" number="195"/>
+    <vehicle id="0" depart="0.00" type="passenger">
+        <route edges="-23464390#0 23464390#0 -23516452#0 -23464391#0"/>
+    </vehicle>
+    <vehicle id="1" depart="1.00" type="passenger">
+        <route edges="-23464390#1 23516452#1"/>
+    </vehicle>
+    <vehicle id="2" depart="2.00" type="passenger">
+        <route edges="23464390#0 -23464390#0 -23757213#4 -23757213#3 23464391#0"/>
+    </vehicle>
+    <vehicle id="3" depart="3.00" type="passenger">
+        <route edges="-23464391#0 23464391#0 23516452#0"/>
+    </vehicle>
+    <vehicle id="4" depart="4.00" type="passenger">
+        <route edges="-23758703 23757213#4 23464390#0 23516452#1 613272628#3"/>
+    </vehicle>
+    <vehicle id="5" depart="5.00" type="passenger">
+        <route edges="-23516452#1 -23464390#0 -23757213#4 23758703"/>
+    </vehicle>
+    <vehicle id="6" depart="6.00" type="passenger">
+        <route edges="-23464390#1 23464390#1"/>
+    </vehicle>
+    <vehicle id="7" depart="7.00" type="passenger">
+        <route edges="23464390#0 -23464390#0 -23757213#4 23758703"/>
+    </vehicle>
+    <vehicle id="8" depart="8.00" type="passenger">
+        <route edges="613272628#3 -23757213#5 -23757213#4 -23757213#3 23464391#0"/>
+    </vehicle>
+    <vehicle id="9" depart="9.00" type="passenger">
+        <route edges="-23758703 23757213#4 23757213#5"/>
+    </vehicle>
+    <vehicle id="10" depart="10.00" type="passenger">
+        <route edges="-23464390#1 -23464390#0 23757213#5 -23757213#5"/>
+    </vehicle>
+    <vehicle id="11" depart="11.00" type="passenger">
+        <route edges="-23516452#1 23516452#1"/>
+    </vehicle>
+    <vehicle id="12" depart="12.00" type="passenger">
+        <route edges="-23464390#1 -23464390#0 23757213#5"/>
+    </vehicle>
+    <vehicle id="13" depart="13.00" type="passenger">
+        <route edges="-23464391#0 23757213#3 23758703"/>
+    </vehicle>
+    <vehicle id="14" depart="14.00" type="passenger">
+        <route edges="23758704#2 23757213#3 23757213#4 23464390#0 -23464390#0"/>
+    </vehicle>
+    <vehicle id="15" depart="15.00" type="passenger">
+        <route edges="-23757213#5 23464390#0 -23516452#0 23516452#0"/>
+    </vehicle>
+    <vehicle id="16" depart="16.00" type="passenger">
+        <route edges="-23516452#0 -23464391#0 -23758704#2"/>
+    </vehicle>
+    <vehicle id="17" depart="17.00" type="passenger">
+        <route edges="-23464390#0"/>
+    </vehicle>
+    <vehicle id="18" depart="18.00" type="passenger">
+        <route edges="23757213#1 23757213#3 23757213#4 23464390#0 23464390#1"/>
+    </vehicle>
+    <vehicle id="19" depart="19.00" type="passenger">
+        <route edges="613272628#3 -23757213#5 23464390#0 -23516452#0"/>
+    </vehicle>
 </routes>
