@@ -170,6 +170,10 @@ class TraCICommandInterface
 				void setPhaseDuration(int32_t duration); /**< set remaining duration of current phase in milliseconds */
 				void setProgramDefinition(TraCITrafficLightProgram::Logic program, int32_t programNr);
 
+				// -------------------------- A2T --------------------------
+				void prioritizeRoad(std::string roadId); // Set a new state for the traffic light to prioritize a specific road
+				// -------------------------- A2T --------------------------
+
 			protected:
 				TraCICommandInterface* traci;
 				TraCIConnection* connection;

@@ -429,6 +429,48 @@ void TraCICommandInterface::Trafficlight::setPhaseIndex(int32_t index) {
 	ASSERT(buf.eof());
 }
 
+
+// -------------------------- A2T --------------------------
+/* Set a new state for the traffic light to prioritize a specific road
+ * @param roadId The ID of the road to prioritize
+ */
+void TraCICommandInterface::Trafficlight::prioritizeRoad(std::string roadId) {
+
+    /* Index of the currently examined link
+     * See documentation at https://sumo.dlr.de/wiki/Simulation/Traffic_Lights#Signal_state_definitions
+     */
+    int linkIndex = 0; // SUMO indexation of the links
+
+    /* New traffic light state
+     * See documentation at https://sumo.dlr.de/wiki/Simulation/Traffic_Lights#Signal_state_definitions
+     */
+    std::string state = "";
+
+    // For each link of the traffic light
+    for (auto const& linksOfSignal: getControlledLinks())
+    {
+        for (auto const& link: linksOfSignal)
+        {
+            // Obtaining the ID of the road to which the link's incoming lane belongs
+            std::string incomingRoadId = traci->lane(link.incoming).getRoadId();
+
+            /* Definition of a new state for the traffic light
+             * - Set to green light if the link's incoming lane belongs to the prioritized road
+             * - Else set to red light
+             */
+            if (roadId == incomingRoadId) state += "G";
+            else state += "r";
+        }
+
+        linkIndex++;
+    }
+
+    // Setting the new state of the traffic light
+    setState(state.c_str());
+}
+// -------------------------- A2T --------------------------
+
+
 std::list<std::string> TraCICommandInterface::getPolygonIds() {
 	return genericGetStringList(CMD_GET_POLYGON_VARIABLE, "", ID_LIST, RESPONSE_GET_POLYGON_VARIABLE);
 }
