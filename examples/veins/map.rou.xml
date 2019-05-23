@@ -11,13 +11,13 @@
         <route edges="-23464390#1 23516452#1"/>
     </vehicle>
     <vehicle id="2" depart="4.00" type="passenger">
-        <route edges="-23758703 23757213#4 23464390#0 23516452#1 613272628#3"/>
+        <route edges="-23758703 23757213#4 23464390#0 23516452#1"/>
     </vehicle>
     <vehicle id="3" depart="6.00" type="passenger">
-        <route edges="613272628#3 -23757213#5 -23757213#4 -23757213#3 23464391#0"/>
+        <route edges="-23757213#5 -23757213#4 -23757213#3 23464391#0"/>
     </vehicle>
     <vehicle id="4" depart="8.00" type="ambulance">
-        <route edges="-23758703 23757213#4 23757213#5"/>
+        <route edges="-23758703 23757213#4 23464390#0 -23516452#0 23464391#1"/>
     </vehicle>
     <vehicle id="5" depart="10.00" type="passenger">
         <route edges="23758704#2 23757213#3 23757213#4 23464390#0 -23464390#0"/>
@@ -32,6 +32,6 @@
         <route edges="23757213#1 23757213#3 23757213#4 23464390#0 23464390#1"/>
     </vehicle>
     <vehicle id="9" depart="18.00" type="passenger">
-        <route edges="613272628#3 -23757213#5 23464390#0 -23516452#0"/>
+        <route edges="-23757213#5 23464390#0 -23516452#0"/>
     </vehicle>
 </routes>
