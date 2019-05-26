@@ -467,6 +467,21 @@ void TraCICommandInterface::Trafficlight::prioritizeRoad(std::string roadId) {
 
     // Setting the new state of the traffic light
     setState(state.c_str());
+    lastManualStateTime = simTime();
+}
+
+/* Checks if the traffic light has to switch back to its normal program after a manual state modification */
+void TraCICommandInterface::Trafficlight::checkForReinitialization() {
+    int reinitializationDelay = 20;
+
+    // Is the current state manually set ?
+    if (getCurrentProgramID() == "online")
+    {
+        if (simTime() - lastManualStateTime >= reinitializationDelay)
+        {
+            setProgram("0"); // The traffic light returns to its normal cycle
+        }
+    }
 }
 // -------------------------- A2T --------------------------
 

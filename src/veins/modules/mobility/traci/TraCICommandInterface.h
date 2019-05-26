@@ -172,12 +172,14 @@ class TraCICommandInterface
 
 				// -------------------------- A2T --------------------------
 				void prioritizeRoad(std::string roadId); // Set a new state for the traffic light to prioritize a specific road
+				void checkForReinitialization(); // Checks if the traffic light has to switch back to its normal program after a manual state modification
 				// -------------------------- A2T --------------------------
 
 			protected:
 				TraCICommandInterface* traci;
 				TraCIConnection* connection;
 				std::string trafficLightId;
+				simtime_t lastManualStateTime = 0;
 		};
 		Trafficlight trafficlight(std::string trafficLightId) {
 			return Trafficlight(this, trafficLightId);
