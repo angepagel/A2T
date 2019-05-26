@@ -30,7 +30,50 @@ void TraCIDemoRSU11p::onWSA(WaveServiceAdvertisment* wsa) {
 }
 
 void TraCIDemoRSU11p::onWSM(WaveShortMessage* wsm) {
+
+    // -------------------------- Veins example original code --------------------------
+    /*
     //this rsu repeats the received traffic update in 2 seconds plus some random delay
     wsm->setSenderAddress(myId);
     sendDelayedDown(wsm->dup(), 2 + uniform(0.01,0.2));
+    */
+    // -------------------------- Veins example original code --------------------------
+
+    // -------------------------- A2T --------------------------
+
+    /* For some reason, an initialize() function wouldn't initialize the traci interface.
+     * Meanwhile, this is done manually here. :^(
+     */
+    Veins::TraCIScenarioManager* manager = Veins::TraCIScenarioManagerAccess().get();
+    TraCICommandInterface* traci = manager->getCommandInterface();
+
+    EV << "======================= RSU INFORMATION =======================" << endl;
+
+    if (wsm->getAmbulance())
+    {
+        EV << "<!> Received a message from an AMU." << endl;
+
+        std::string amuRoadId = wsm->getRoadId();
+
+        // For each traffic light
+        for (auto const& tlId: traci->getTrafficlightIds())
+        {
+            std::list<std::string> controlledLanesIds = traci->trafficlight(tlId).getControlledLanes();
+
+            // Checks if the traffic light has to be set back to its normal state
+            traci->trafficlight(tlId).checkForReinitialization();
+
+            // For each controlled lane
+            for (std::string laneId: controlledLanesIds)
+            {
+                // Is the controlled lane's road the same as the AMU road ?
+                if (traci->lane(laneId).getRoadId() == amuRoadId)
+                {
+                    traci->trafficlight(tlId).prioritizeRoad(amuRoadId);
+                    break;
+                }
+            }
+        }
+    }
+    // -------------------------- A2T --------------------------
 }
