@@ -53,7 +53,7 @@ void TraCIDemoRSU11p::onWSM(WaveShortMessage* wsm) {
     {
         EV << "<!> Received a message from an AMU." << endl;
 
-        std::string amuRoadId = wsm->getRoadId();
+        std::string amuRoadId = traci->lane(wsm->getLaneId()).getRoadId();
 
         // For each traffic light
         for (auto const& tlId: traci->getTrafficlightIds())

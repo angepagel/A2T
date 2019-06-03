@@ -40,7 +40,7 @@ packet WaveShortMessage {
 	
 	// -------------------------- A2T --------------------------
 	bool ambulance;
-	string roadId;
+	string laneId;
 	int posx;
 	int posy;
 	int radius;

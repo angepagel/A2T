@@ -174,14 +174,13 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
 
             // Set the WSM informations
             wsm->setAmbulance(true);
-            wsm->setRoadId(mobility->getRoadId().c_str());
+            wsm->setLaneId(traciVehicle->getLaneId().c_str());
             wsm->setPosx(mobility->getCurrentPosition().x);
             wsm->setPosy(mobility->getCurrentPosition().y);
             wsm->setRadius(commRadius);
 
             EV << "======================= AMBULANCE BROADCAST =======================" << endl;
             EV << "WSM sent from AMU id:" << wsm->getSenderAddress() << "." << endl;
-            EV << "AMU driving on road id:" << wsm->getRoadId() << "." << endl;
             EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
 
             lastMessageSentAt = simTime();
