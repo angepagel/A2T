@@ -46,7 +46,7 @@ void TraCIDemo11p::onWSA(WaveServiceAdvertisment* wsa) {
 }
 
 void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
-    findHost()->getDisplayString().updateWith("r=16,green");
+    findHost()->getDisplayString().updateWith("r=8,green");
 
     // -------------------------- Veins example original code --------------------------
     /*
@@ -61,48 +61,38 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
     */
     // -------------------------- Veins example original code --------------------------
 
-
     // -------------------------- A2T --------------------------
     if (traciVehicle->getTypeId() == "passenger")
     {
         EV << "======================= PASSENGER INFORMATION =======================" << endl;
-        EV << "WSM received by vehicle id:" << mobility->getNode()->getId() << "." << endl;
-        EV << "Vehicle driving on road id:" << mobility->getRoadId() << "." << endl;
 
         // Is the message emitted by an AMU ?
         if (wsm->getAmbulance())
         {
-            // Euclidian distance from the AMU
-            double distance = sqrt(
-                    pow((mobility->getCurrentPosition().x - wsm->getPosx()), 2)
-                    + pow((mobility->getCurrentPosition().y - wsm->getPosy()), 2)
-                );
-
             EV << "<!> This message comes from an AMU." << endl;
-            EV << "Position of the AMU: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
-            EV << "Distance from the AMU: " << distance << "." << endl;
 
-            // Is the vehicle in the communication radius of the AMU ?
-            if (distance < wsm->getRadius())
+            // <!> Calculating the driving distance from the AMU can cause an error at junctions.
+            /*
+                Coord amuCoord(wsm->getPosx(), wsm->getPosy());
+                double distance = traci->getDistance(curPosition, amuCoord, true);
+                EV << "Driving distance from the AMU: " << distance << "." << endl;
+            */
+
+            std::string amuLaneId = wsm->getLaneId();
+            std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
+
+            // Is the vehicle on the same road as the AMU ?
+            if (amuRoadId == mobility->getRoadId())
             {
-                EV << "<!> This vehicle is in the AMU communication radius." << endl;
+                EV << "<!> This vehicle is on the same road as the AMU." << endl;
+                findHost()->getDisplayString().updateWith("r=8,blue");
 
-                // Is the vehicle on the same road as the AMU ?
-                if (wsm->getRoadId() == mobility->getRoadId())
-                {
-                    EV << "<!> This vehicle is on the same road as the AMU." << endl;
-                    EV << "Switching to lowest speed lane..." << endl;
-
-                    findHost()->getDisplayString().updateWith("r=16,blue");
-
-                    // Switch to lowest speed lane
-                    traciVehicle->changeLane(0, 1000);
-                }
+                EV << "Clearing the way and switching to the lowest speed lane." << endl;
+                traciVehicle->changeLane(0, 10000); // 10000ms = 10s
             }
         }
     }
     // -------------------------- A2T --------------------------
-
 }
 
 void TraCIDemo11p::handleSelfMsg(cMessage* msg) {
@@ -160,7 +150,10 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
 
 
     // -------------------------- A2T --------------------------
-    int broadcastInterval = 10; // How would this parameter affect the results of the simulation ?
+
+    // How would these parameter affect the results of the simulation ?
+    int broadcastInterval = 3;
+    int commRadius = 50;
 
     if (traciVehicle->getTypeId() == "ambulance")
     {
@@ -169,8 +162,6 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
             // Creation of a new WSM object
             WaveShortMessage* wsm = new WaveShortMessage();
             populateWSM(wsm);
-
-            int commRadius = 20; // How would this parameter affect the results of the simulation ?
 
             // Set the WSM informations
             wsm->setAmbulance(true);
@@ -188,5 +179,4 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
         }
     }
     // -------------------------- A2T --------------------------
-
 }
