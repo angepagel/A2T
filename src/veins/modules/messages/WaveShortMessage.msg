@@ -41,6 +41,7 @@ packet WaveShortMessage {
 	// -------------------------- A2T --------------------------
 	bool ambulance;
 	string laneId;
+	int hopCount;
 	int posx;
 	int posy;
 	int radius;
