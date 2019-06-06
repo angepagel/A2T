@@ -40,6 +40,9 @@ void TraCIMobility::Statistics::initialize()
 	startTime = simTime();
 	totalTime = 0;
 	stopTime = 0;
+	// -------------------------- A2T --------------------------
+	waitingTime = 0;
+	// -------------------------- A2T --------------------------
 	minSpeed = MY_INFINITY;
 	maxSpeed = -MY_INFINITY;
 	totalDistance = 0;
@@ -52,6 +55,9 @@ void TraCIMobility::Statistics::watch(cSimpleModule& )
 	WATCH(minSpeed);
 	WATCH(maxSpeed);
 	WATCH(totalDistance);
+    // -------------------------- A2T --------------------------
+	WATCH(waitingTime);
+    // -------------------------- A2T --------------------------
 }
 
 void TraCIMobility::Statistics::recordScalars(cSimpleModule& module)
@@ -60,6 +66,9 @@ void TraCIMobility::Statistics::recordScalars(cSimpleModule& module)
 	module.recordScalar("startTime", startTime);
 	module.recordScalar("totalTime", totalTime);
 	module.recordScalar("stopTime", stopTime);
+	// -------------------------- A2T --------------------------
+	module.recordScalar("waitingTime", waitingTime);
+	// -------------------------- A2T --------------------------
 	if (minSpeed != MY_INFINITY) module.recordScalar("minSpeed", minSpeed);
 	if (maxSpeed != -MY_INFINITY) module.recordScalar("maxSpeed", maxSpeed);
 	module.recordScalar("totalDistance", totalDistance);
@@ -216,6 +225,13 @@ void TraCIMobility::changePosition()
 				currentCO2EmissionVec.record(co2emission);
 				statistics.totalCO2Emission+=co2emission * updateInterval.dbl();
 			}
+	        // -------------------------- A2T --------------------------
+			// If the vehicle is stopped
+	        if (speed < 1)
+	        {
+	            statistics.waitingTime += updateInterval;
+	        }
+	        // -------------------------- A2T --------------------------
 			last_speed = speed;
 		} else {
 			last_speed = -1;

@@ -58,6 +58,9 @@ class TraCIMobility : public BaseMobility
 				double firstRoadNumber; /**< for statistics: number of first road we encountered (if road id can be expressed as a number) */
 				simtime_t startTime; /**< for statistics: start time */
 				simtime_t totalTime; /**< for statistics: total time travelled */
+				// -------------------------- A2T --------------------------
+				simtime_t waitingTime; /**< for statistics: total time waited (speed < 1 m/s) */
+				// -------------------------- A2T --------------------------
 				simtime_t stopTime; /**< for statistics: stop time */
 				double minSpeed; /**< for statistics: minimum value of currentSpeed */
 				double maxSpeed; /**< for statistics: maximum value of currentSpeed */
