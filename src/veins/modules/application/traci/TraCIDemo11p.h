@@ -45,7 +45,10 @@ class TraCIDemo11p : public BaseWaveApplLayer {
 		bool sentMessage;
 		int currentSubscribedServiceId;
 		// -------------------------- A2T --------------------------
-		simtime_t lastMessageSentAt;
+        bool a2t; /* Enable or disable A2T communications */
+        int priority; /* [AMU] Priority of the ambulance */
+		simtime_t lastBroadcastAt; /* [AMU] Simulation time of the last message broadcasted */
+		long lastMessageTreeId; /* Tree ID of the last message received */
 		// -------------------------- A2T --------------------------
 	protected:
         virtual void onWSM(WaveShortMessage* wsm);

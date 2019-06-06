@@ -29,7 +29,10 @@ void TraCIDemo11p::initialize(int stage) {
         lastDroveAt = simTime();
         currentSubscribedServiceId = -1;
         // -------------------------- A2T --------------------------
-        lastMessageSentAt = simTime();
+        a2t = true;
+        priority = 0;
+        lastBroadcastAt = simTime();
+        lastMessageTreeId = 0;
         // -------------------------- A2T --------------------------
     }
 }
@@ -46,8 +49,6 @@ void TraCIDemo11p::onWSA(WaveServiceAdvertisment* wsa) {
 }
 
 void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
-    findHost()->getDisplayString().updateWith("r=8,green");
-
     // -------------------------- Veins example original code --------------------------
     /*
     if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
@@ -62,36 +63,63 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
     // -------------------------- Veins example original code --------------------------
 
     // -------------------------- A2T --------------------------
-    if (traciVehicle->getTypeId() == "passenger")
+    long messageTreeId = wsm->getTreeId();
+
+    EV << "<!> WSM received, tree id: " << messageTreeId << endl;
+
+    if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
     {
-        EV << "======================= PASSENGER INFORMATION =======================" << endl;
+        EV << "<!> This message has not been received yet." << endl;
+        EV << "<!> Processing..." << endl;
 
-        // Is the message emitted by an AMU ?
-        if (wsm->getAmbulance())
+        lastMessageTreeId = messageTreeId;
+
+        int amuPriority = wsm->getPriority();
+        int hopCount = wsm->getHopCount();
+        int maxHop = wsm->getMaxHop();
+
+        if (wsm->getIsFromAmbulance())
         {
-            EV << "<!> This message comes from an AMU." << endl;
+            EV << "<!> This message comes from an ambulance." << endl;
 
-            // <!> Calculating the driving distance from the AMU can cause an error at junctions.
-            /*
-                Coord amuCoord(wsm->getPosx(), wsm->getPosy());
-                double distance = traci->getDistance(curPosition, amuCoord, true);
-                EV << "Driving distance from the AMU: " << distance << "." << endl;
-            */
-
-            std::string amuLaneId = wsm->getLaneId();
+            std::string amuLaneId = wsm->getAmuLaneId();
             std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
 
-            // Is the vehicle on the same road as the AMU ?
-            if (amuRoadId == mobility->getRoadId())
+            if (amuRoadId == mobility->getRoadId()) // Is the vehicle on the same road as the AMU ?
             {
-                EV << "<!> This vehicle is on the same road as the AMU." << endl;
-                findHost()->getDisplayString().updateWith("r=8,blue");
+                // No action is taken if the vehicle is also an AMU
+                if (traciVehicle->getTypeId() != "ambulance")
+                {
+                    EV << "Clearing the way and switching to the lowest speed lane." << endl;
+                    traciVehicle->changeLane(0, 10000); // 10000ms = 10s
+                }
 
-                EV << "Clearing the way and switching to the lowest speed lane." << endl;
-                traciVehicle->changeLane(0, 10000); // 10000ms = 10s
+                // TODO New lane changing system
+                /* Switching to lane 0 may block the AMU as this lane (supposedly the slowest)
+                 * is possibly the only lane allowing to turn on the next road in AMU's path.
+                 */
+            }
+
+            if (hopCount < maxHop) // Repeat the message if it has not exceeded its maximum number of hops
+            {
+                double minForwardDistance = 200;
+
+                Coord senderCoord(wsm->getSenderX(), wsm->getSenderY());
+                double distanceFromSender = traci->getDistance(curPosition, senderCoord, false);
+
+                if (distanceFromSender > minForwardDistance)
+                {
+                    wsm->setSenderAddress(myId);
+                    wsm->setSenderX(mobility->getCurrentPosition().x);
+                    wsm->setSenderY(mobility->getCurrentPosition().y);
+                    wsm->setHopCount(++hopCount);
+                    wsm->setSerial(3);
+                    scheduleAt(simTime() + uniform(0.01,0.2), wsm->dup());
+                }
             }
         }
     }
+    else EV << "<!> This message has already been processed." << endl;
     // -------------------------- A2T --------------------------
 }
 
@@ -150,32 +178,54 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
 
 
     // -------------------------- A2T --------------------------
-
-    // How would these parameter affect the results of the simulation ?
-    int broadcastInterval = 3;
-    int commRadius = 50;
-
-    if (traciVehicle->getTypeId() == "ambulance")
+    if (a2t) // Are A2T communications enabled ?
     {
-        if (simTime() - lastMessageSentAt >= broadcastInterval) {
+        int broadcastInterval = 3; /* Interval between the broadcast of a new message (in seconds) */
+        int maxHop = 2;
 
-            // Creation of a new WSM object
-            WaveShortMessage* wsm = new WaveShortMessage();
-            populateWSM(wsm);
+        // TODO How would these parameter affect the results of the simulation ?
 
-            // Set the WSM informations
-            wsm->setAmbulance(true);
-            wsm->setLaneId(traciVehicle->getLaneId().c_str());
-            wsm->setPosx(mobility->getCurrentPosition().x);
-            wsm->setPosy(mobility->getCurrentPosition().y);
-            wsm->setRadius(commRadius);
+        /* A WSM has a typical range of 300 meters.
+         * Maximum range of the message according to the maximum number of hops of the message :
+         * range(1) = 0.3km
+         * range(2) = 0.6km
+         * range(3) = 0.9km
+         * range(4) = 1.2km
+         * etc.
+         */
 
-            EV << "======================= AMBULANCE BROADCAST =======================" << endl;
-            EV << "WSM sent from AMU id:" << wsm->getSenderAddress() << "." << endl;
-            EV << "WSM position information set: x:" << wsm->getPosx() << " y:" << wsm->getPosy() << "." << endl;
+        if (traciVehicle->getTypeId() == "ambulance")
+        {
 
-            lastMessageSentAt = simTime();
-            sendDown(wsm); // Send the message to the lower layer
+            if (priority == 0) // Generate a random priority if not set
+            {
+                // TODO Generate random priority
+            }
+
+
+            if (simTime()-lastBroadcastAt >= broadcastInterval)
+            {
+                double posX = mobility->getCurrentPosition().x;
+                double posY = mobility->getCurrentPosition().y;
+
+                WaveShortMessage* wsm = new WaveShortMessage();
+                populateWSM(wsm);
+
+                wsm->setIsFromAmbulance(true);
+                wsm->setAmuLaneId(traciVehicle->getLaneId().c_str());
+                wsm->setSenderX(posX);
+                wsm->setSenderY(posX);
+                wsm->setAmuX(posX);
+                wsm->setAmuY(posY);
+                wsm->setMaxHop(maxHop);
+                wsm->setHopCount(1);
+
+                EV << "<!> Ambulance broadcasts a WSM." << endl;
+                EV << "<!> WSM sent, tree id: " << wsm->getTreeId() << endl;
+
+                lastBroadcastAt = simTime();
+                sendDown(wsm); // Send the message to the lower layer
+            }
         }
     }
     // -------------------------- A2T --------------------------

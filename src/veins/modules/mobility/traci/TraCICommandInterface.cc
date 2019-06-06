@@ -472,7 +472,7 @@ void TraCICommandInterface::Trafficlight::prioritizeRoad(std::string roadId) {
 
 /* Checks if the traffic light has to switch back to its normal program after a manual state modification */
 void TraCICommandInterface::Trafficlight::checkForReinitialization() {
-    int reinitializationDelay = 20;
+    int reinitializationDelay = 5;
 
     // Is the current state manually set ?
     if (getCurrentProgramID() == "online")

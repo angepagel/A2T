@@ -39,12 +39,16 @@ packet WaveShortMessage {
 	string wsmData = "Some Data";
 	
 	// -------------------------- A2T --------------------------
-	bool ambulance;
-	string laneId;
-	int hopCount;
-	int posx;
-	int posy;
-	int radius;
+	bool isFromAmbulance;	// Is the message sent by an ambulance ?
+	int priority; 			// Priority of the message
+	string amuLaneId; 		// Lane ID of the ambulance
+	double amuX;			// x position of the ambulance
+	double amuY;			// y position of the ambulance
+	double senderX;			// x position of the sender
+	double senderY;			// y position of the sender
+	int actionRadius;		// Radius in which vehicles will react to the ambulance
+	int maxHop;				// Maximum number of hops of the message (lifespan)
+	int hopCount; 			// Number of hops of the message
 	// -------------------------- A2T --------------------------
 
 	int senderAddress = 0;
