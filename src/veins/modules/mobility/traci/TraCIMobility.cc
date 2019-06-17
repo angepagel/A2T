@@ -42,6 +42,7 @@ void TraCIMobility::Statistics::initialize()
 	stopTime = 0;
 	// -------------------------- A2T --------------------------
 	waitingTime = 0;
+	congestionTime = 0;
 	// -------------------------- A2T --------------------------
 	minSpeed = MY_INFINITY;
 	maxSpeed = -MY_INFINITY;
@@ -57,6 +58,7 @@ void TraCIMobility::Statistics::watch(cSimpleModule& )
 	WATCH(totalDistance);
     // -------------------------- A2T --------------------------
 	WATCH(waitingTime);
+	WATCH(congestionTime);
     // -------------------------- A2T --------------------------
 }
 
@@ -68,6 +70,7 @@ void TraCIMobility::Statistics::recordScalars(cSimpleModule& module)
 	module.recordScalar("stopTime", stopTime);
 	// -------------------------- A2T --------------------------
 	module.recordScalar("waitingTime", waitingTime);
+    module.recordScalar("congestionTime", congestionTime);
 	// -------------------------- A2T --------------------------
 	if (minSpeed != MY_INFINITY) module.recordScalar("minSpeed", minSpeed);
 	if (maxSpeed != -MY_INFINITY) module.recordScalar("maxSpeed", maxSpeed);
@@ -226,8 +229,16 @@ void TraCIMobility::changePosition()
 				statistics.totalCO2Emission+=co2emission * updateInterval.dbl();
 			}
 	        // -------------------------- A2T --------------------------
-			// If the vehicle is stopped
-	        if (speed < 1)
+			int congestionSpeed = 5;
+
+			/* Congestion time */
+			if (speed > 1 && speed < congestionSpeed)
+			{
+                statistics.congestionTime += updateInterval;
+			}
+
+			/* Waiting time */
+			else if (speed < 1)
 	        {
 	            statistics.waitingTime += updateInterval;
 	        }

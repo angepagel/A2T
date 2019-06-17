@@ -60,6 +60,7 @@ class TraCIMobility : public BaseMobility
 				simtime_t totalTime; /**< for statistics: total time travelled */
 				// -------------------------- A2T --------------------------
 				simtime_t waitingTime; /**< for statistics: total time waited (speed < 1 m/s) */
+                simtime_t congestionTime; /**< for statistics: total time spent in congestions */
 				// -------------------------- A2T --------------------------
 				simtime_t stopTime; /**< for statistics: stop time */
 				double minSpeed; /**< for statistics: minimum value of currentSpeed */
