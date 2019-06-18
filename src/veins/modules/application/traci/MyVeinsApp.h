@@ -18,13 +18,15 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef __VEINS_MYVEINSAPP_H_
-#define __VEINS_MYVEINSAPP_H_
+#pragma once
 
-#include <omnetpp.h>
-#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
+#include "veins/veins.h"
+
+#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 
 using namespace omnetpp;
+
+namespace Veins {
 
 /**
  * @brief
@@ -36,17 +38,18 @@ using namespace omnetpp;
  *
  */
 
-class MyVeinsApp : public BaseWaveApplLayer {
-    public:
-        virtual void initialize(int stage);
-        virtual void finish();
-    protected:
-        virtual void onBSM(BasicSafetyMessage* bsm);
-        virtual void onWSM(WaveShortMessage* wsm);
-        virtual void onWSA(WaveServiceAdvertisment* wsa);
+class MyVeinsApp : public DemoBaseApplLayer {
+public:
+    void initialize(int stage) override;
+    void finish() override;
 
-        virtual void handleSelfMsg(cMessage* msg);
-        virtual void handlePositionUpdate(cObject* obj);
-    };
+protected:
+    void onBSM(DemoSafetyMessage* bsm) override;
+    void onWSM(BaseFrame1609_4* wsm) override;
+    void onWSA(DemoServiceAdvertisment* wsa) override;
 
-#endif
+    void handleSelfMsg(cMessage* msg) override;
+    void handlePositionUpdate(cObject* obj) override;
+};
+
+} // namespace Veins

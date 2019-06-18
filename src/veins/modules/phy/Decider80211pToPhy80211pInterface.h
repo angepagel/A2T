@@ -18,8 +18,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef DECIDER80211PTOPHY80211PINTERFACE_H_
-#define DECIDER80211PTOPHY80211PINTERFACE_H_
+#pragma once
+
+namespace Veins {
 
 /**
  * @brief
@@ -31,8 +32,8 @@
  */
 class Decider80211pToPhy80211pInterface {
 public:
-	virtual ~Decider80211pToPhy80211pInterface() {};
-	virtual int getRadioState()=0;
+    virtual ~Decider80211pToPhy80211pInterface(){};
+    virtual int getRadioState() = 0;
 };
 
-#endif /* DECIDER80211PTOPHY80211PINTERFACE_H_ */
+} // namespace Veins

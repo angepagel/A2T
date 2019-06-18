@@ -19,32 +19,26 @@
  *              ConnectionManager module
  **************************************************************************/
 
-
 #include "veins/base/connectionManager/NicEntryDirect.h"
 #include "veins/base/connectionManager/ChannelAccess.h"
 
-#ifndef nicEV
-#define nicEV EV_DEBUG << "NicEntry: "
-#endif
-
 using std::endl;
+using namespace Veins;
 
 void NicEntryDirect::connectTo(NicEntry* other)
 {
     cModule* otherPtr = other->nicPtr;
 
-    nicEV <<"connecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+    EV_TRACE << "connecting nic #" << nicId << " and #" << other->nicId << endl;
 
-    cGate *radioGate=NULL;
-    if( (radioGate = otherPtr->gate("radioIn")) == NULL )
-		throw cRuntimeError("Nic has no radioIn gate!");
+    cGate* radioGate = nullptr;
+    if ((radioGate = otherPtr->gate("radioIn")) == nullptr) throw cRuntimeError("Nic has no radioIn gate!");
 
     outConns[other] = radioGate->getPathStartGate();
 }
 
-
 void NicEntryDirect::disconnectFrom(NicEntry* other)
 {
-    nicEV <<"disconnecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+    EV_TRACE << "disconnecting nic #" << nicId << " and #" << other->nicId << endl;
     outConns.erase(other);
 }

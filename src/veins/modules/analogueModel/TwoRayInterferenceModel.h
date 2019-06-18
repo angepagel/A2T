@@ -18,12 +18,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ANALOGUEMODEL_TWORAYINTERFERENCEMODEL_H
-#define ANALOGUEMODEL_TWORAYINTERFERENCEMODEL_H
+#pragma once
 
 #include "veins/base/phyLayer/AnalogueModel.h"
 #include "veins/base/modules/BaseWorldUtility.h"
-#include "veins/base/phyLayer/MappingBase.h"
+
+namespace Veins {
 
 using Veins::AirFrame;
 
@@ -40,49 +40,24 @@ using Veins::AirFrame;
  *
  * @ingroup analogueModels
  */
-class TwoRayInterferenceModel: public AnalogueModel {
+class TwoRayInterferenceModel : public AnalogueModel {
 
-	public:
-		TwoRayInterferenceModel(double dielectricConstant, bool debug) :
-			epsilon_r(dielectricConstant),
-			debug(debug) {}
+public:
+    TwoRayInterferenceModel(cComponent* owner, double dielectricConstant)
+        : AnalogueModel(owner)
+        , epsilon_r(dielectricConstant)
+    {
+    }
 
-		virtual ~TwoRayInterferenceModel() {}
+    ~TwoRayInterferenceModel() override
+    {
+    }
 
-	virtual void filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos);
+    void filterSignal(Signal* signal) override;
 
-
-	protected:
-
-		class Mapping: public SimpleConstMapping {
-			protected:
-				double gamma;
-				double d;
-				double d_dir;
-				double d_ref;
-				double lambda;
-				bool debug;
-			public:
-				Mapping(double gamma, double distance, double directDistance, double reflDistance, bool debug)
-					: SimpleConstMapping(DimensionSet::timeFreqDomain()),
-					gamma(gamma),
-					d(distance),
-					d_dir(directDistance),
-					d_ref(reflDistance),
-					debug(debug) {}
-
-				virtual double getValue(const Argument& pos) const;
-
-				ConstMapping* constClone() const {
-					return new Mapping(*this);
-				}
-		};
-
-		/** @brief stores the dielectric constant used for calculation */
-		double epsilon_r;
-
-		/** @brief Whether debug messages should be displayed. */
-		bool debug;
+protected:
+    /** @brief stores the dielectric constant used for calculation */
+    double epsilon_r;
 };
 
-#endif /* ANALOGUEMODEL_TWORAYINTERFERENCEMODEL_H */
+} // namespace Veins

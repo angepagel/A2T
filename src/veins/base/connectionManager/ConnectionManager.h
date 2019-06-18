@@ -1,8 +1,10 @@
-#ifndef CONNECTIONMANAGER_H_
-#define CONNECTIONMANAGER_H_
+#pragma once
 
-#include "veins/base/utils/MiXiMDefs.h"
+#include "veins/veins.h"
+
 #include "veins/base/connectionManager/BaseConnectionManager.h"
+
+namespace Veins {
 
 /**
  * @brief BaseConnectionManager implementation which only defines a
@@ -14,17 +16,15 @@
  *
  * @ingroup connectionManager
  */
-class MIXIM_API ConnectionManager : public BaseConnectionManager
-{
+class VEINS_API ConnectionManager : public BaseConnectionManager {
 protected:
-
-	/**
-	 * @brief Calculate interference distance
-	 *
-	 * You may want to overwrite this function in order to do your own
-	 * interference calculation
-	 */
-	virtual double calcInterfDist();
+    /**
+     * @brief Calculate interference distance
+     *
+     * You may want to overwrite this function in order to do your own
+     * interference calculation
+     */
+    double calcInterfDist() override;
 };
 
-#endif /*CONNECTIONMANAGER_H_*/
+} // namespace Veins

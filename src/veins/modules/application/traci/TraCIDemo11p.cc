@@ -20,85 +20,70 @@
 
 #include "veins/modules/application/traci/TraCIDemo11p.h"
 
-Define_Module(TraCIDemo11p);
+#include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
-void TraCIDemo11p::initialize(int stage) {
-    BaseWaveApplLayer::initialize(stage);
+using namespace Veins;
+
+Define_Module(Veins::TraCIDemo11p);
+
+void TraCIDemo11p::initialize(int stage)
+{
+    DemoBaseApplLayer::initialize(stage);
     if (stage == 0) {
-        sentMessage = false;
-        lastDroveAt = simTime();
-        currentSubscribedServiceId = -1;
-        // -------------------------- A2T --------------------------
         a2t = true;
         priority = 0;
         lastBroadcastAt = simTime();
         lastMessageTreeId = 0;
-        // -------------------------- A2T --------------------------
+        warningDistance = 200;
     }
 }
 
-void TraCIDemo11p::onWSA(WaveServiceAdvertisment* wsa) {
+void TraCIDemo11p::onWSA(DemoServiceAdvertisment* wsa)
+{
     if (currentSubscribedServiceId == -1) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
         currentSubscribedServiceId = wsa->getPsid();
-        if  (currentOfferedServiceId != wsa->getPsid()) {
+        if (currentOfferedServiceId != wsa->getPsid()) {
             stopService();
-            startService((Channels::ChannelNumber) wsa->getTargetChannel(), wsa->getPsid(), "Mirrored Traffic Service");
+            startService(static_cast<Channel>(wsa->getTargetChannel()), wsa->getPsid(), "Mirrored Traffic Service");
         }
     }
 }
 
-void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
-    // -------------------------- Veins example original code --------------------------
-    /*
-    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
-    if (!sentMessage) {
-        sentMessage = true;
-        //repeat the received traffic update once in 2 seconds plus some random delay
-        wsm->setSenderAddress(myId);
-        wsm->setSerial(3);
-        scheduleAt(simTime() + 2 + uniform(0.01,0.2), wsm->dup());
-    }
-    */
-    // -------------------------- Veins example original code --------------------------
+void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
+{
+    TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
 
-    // -------------------------- A2T --------------------------
-    long messageTreeId = wsm->getTreeId();
-
-    EV << "<!> WSM received, tree id: " << messageTreeId << endl;
+    long messageTreeId = frame->getTreeId();
 
     if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
     {
-        EV << "<!> This message has not been received yet." << endl;
-        EV << "<!> Processing..." << endl;
-
         lastMessageTreeId = messageTreeId;
 
-        int amuPriority = wsm->getPriority();
+        int wsmPriority = wsm->getPriority();
         int hopCount = wsm->getHopCount();
         int maxHop = wsm->getMaxHop();
 
         if (wsm->getIsFromAmbulance())
         {
-            EV << "<!> This message comes from an ambulance." << endl;
+            Coord amuCoord(wsm->getAmuX(), wsm->getAmuY());
+            double distanceFromAmbulance = traci->getDistance(curPosition, amuCoord, false);
 
-            std::string amuLaneId = wsm->getAmuLaneId();
-            std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
-
-            if (amuRoadId == mobility->getRoadId()) // Is the vehicle on the same road as the AMU ?
+            if (distanceFromAmbulance <= warningDistance)
             {
-                // No action is taken if the vehicle is also an AMU
-                if (traciVehicle->getTypeId() != "ambulance")
-                {
-                    EV << "Clearing the way and switching to the lowest speed lane." << endl;
-                    traciVehicle->changeLane(0, 10000); // 10000ms = 10s
-                }
+                double laneChangeDuration = 6.0;
 
-                // TODO New lane changing system
-                /* Switching to lane 0 may block the AMU as this lane (supposedly the slowest)
-                 * is possibly the only lane allowing to turn on the next road in AMU's path.
-                 */
+                std::string amuLaneId = wsm->getAmuLaneId();
+                std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
+                std::string vehicleType = traciVehicle->getTypeId();
+
+                if (vehicleType != "ambulance" || (vehicleType == "ambulance" && wsmPriority > priority))
+                {
+                    traciVehicle->changeLane(0, laneChangeDuration);
+                    // TODO: This needs to be improved.
+                }
             }
+
 
             if (hopCount < maxHop) // Repeat the message if it has not exceeded its maximum number of hops
             {
@@ -110,109 +95,69 @@ void TraCIDemo11p::onWSM(WaveShortMessage* wsm) {
                 if (distanceFromSender > minForwardDistance)
                 {
                     wsm->setSenderAddress(myId);
-                    wsm->setSenderX(mobility->getCurrentPosition().x);
-                    wsm->setSenderY(mobility->getCurrentPosition().y);
+                    wsm->setSenderX(mobility->getPositionAt(simTime()).x);
+                    wsm->setSenderY(mobility->getPositionAt(simTime()).y);
                     wsm->setHopCount(++hopCount);
                     wsm->setSerial(3);
-                    scheduleAt(simTime() + uniform(0.01,0.2), wsm->dup());
+                    scheduleAt(simTime() + uniform(0.01,0.3), wsm->dup());
                 }
             }
         }
     }
-    else EV << "<!> This message has already been processed." << endl;
-    // -------------------------- A2T --------------------------
 }
 
-void TraCIDemo11p::handleSelfMsg(cMessage* msg) {
-    if (WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg)) {
-        //send this message on the service channel until the counter is 3 or higher.
-        //this code only runs when channel switching is enabled
+void TraCIDemo11p::handleSelfMsg(cMessage* msg)
+{
+    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg)) {
+        // send this message on the service channel until the counter is 3 or higher.
+        // this code only runs when channel switching is enabled
         sendDown(wsm->dup());
-        wsm->setSerial(wsm->getSerial() +1);
+        wsm->setSerial(wsm->getSerial() + 1);
         if (wsm->getSerial() >= 3) {
-            //stop service advertisements
+            // stop service advertisements
             stopService();
-            delete(wsm);
+            delete (wsm);
         }
         else {
-            scheduleAt(simTime()+1, wsm);
+            scheduleAt(simTime() + 1, wsm);
         }
     }
     else {
-        BaseWaveApplLayer::handleSelfMsg(msg);
+        DemoBaseApplLayer::handleSelfMsg(msg);
     }
 }
 
-void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
-    BaseWaveApplLayer::handlePositionUpdate(obj);
+void TraCIDemo11p::handlePositionUpdate(cObject* obj)
+{
+    DemoBaseApplLayer::handlePositionUpdate(obj);
 
-    // -------------------------- Veins example original code --------------------------
-    /*
-    // stopped for for at least 10s?
-    if (mobility->getSpeed() < 1) {
-        if (simTime() - lastDroveAt >= 10 && sentMessage == false) {
-            findHost()->getDisplayString().updateWith("r=16,red");
-            sentMessage = true;
-
-            WaveShortMessage* wsm = new WaveShortMessage();
-            populateWSM(wsm);
-            wsm->setWsmData(mobility->getRoadId().c_str());
-
-            //host is standing still due to crash
-            if (dataOnSch) {
-                startService(Channels::SCH2, 42, "Traffic Information Service");
-                //started service and server advertising, schedule message to self to send later
-                scheduleAt(computeAsynchronousSendingTime(1,type_SCH),wsm);
-            }
-            else {
-                //send right away on CCH, because channel switching is disabled
-                sendDown(wsm);
-            }
-        }
-    }
-    else {
-        lastDroveAt = simTime();
-    }
-    */
-    // -------------------------- Veins example original code --------------------------
-
-
-    // -------------------------- A2T --------------------------
-    if (a2t) // Are A2T communications enabled ?
+    if (a2t)
     {
-        int broadcastInterval = 3; /* Interval between the broadcast of a new message (in seconds) */
-        int maxHop = 2;
-
-        // TODO How would these parameter affect the results of the simulation ?
-
-        /* A WSM has a typical range of 300 meters.
-         * Maximum range of the message according to the maximum number of hops of the message :
-         * range(1) = 0.3km
-         * range(2) = 0.6km
-         * range(3) = 0.9km
-         * range(4) = 1.2km
-         * etc.
-         */
+        simtime_t broadcastInterval = 1; // Interval between the broadcast of a new message (in seconds)
+        int maxHop = 2; // Maximum number of hops of a message
 
         if (traciVehicle->getTypeId() == "ambulance")
         {
 
-            if (priority == 0) // Generate a random priority if not set
+            if (priority == 0)
             {
-                // TODO Generate random priority
-            }
+                std::string id = mobility->getExternalId();
 
+                if      (id == "amu0")  priority = 2;
+                else if (id == "amu1")  priority = 1;
+            }
 
             if (simTime()-lastBroadcastAt >= broadcastInterval)
             {
-                double posX = mobility->getCurrentPosition().x;
-                double posY = mobility->getCurrentPosition().y;
+                double posX = mobility->getPositionAt(simTime()).x;
+                double posY = mobility->getPositionAt(simTime()).y;
 
-                WaveShortMessage* wsm = new WaveShortMessage();
+                TraCIDemo11pMessage* wsm = new TraCIDemo11pMessage();
                 populateWSM(wsm);
 
                 wsm->setIsFromAmbulance(true);
                 wsm->setAmuLaneId(traciVehicle->getLaneId().c_str());
+                wsm->setPriority(priority);
                 wsm->setSenderX(posX);
                 wsm->setSenderY(posX);
                 wsm->setAmuX(posX);
@@ -220,13 +165,9 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj) {
                 wsm->setMaxHop(maxHop);
                 wsm->setHopCount(1);
 
-                EV << "<!> Ambulance broadcasts a WSM." << endl;
-                EV << "<!> WSM sent, tree id: " << wsm->getTreeId() << endl;
-
                 lastBroadcastAt = simTime();
                 sendDown(wsm); // Send the message to the lower layer
             }
         }
     }
-    // -------------------------- A2T --------------------------
 }

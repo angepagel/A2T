@@ -18,10 +18,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WORLD_TRACI_TRACICOLORS_H
-#define WORLD_TRACI_TRACICOLORS_H
+#pragma once
 
-#include "veins/base/utils/MiXiMDefs.h"
+#include "veins/veins.h"
 
 namespace Veins {
 
@@ -29,18 +28,15 @@ namespace Veins {
  * TraCI compatible color container
  */
 class TraCIColor {
-	public:
-		TraCIColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
-		static TraCIColor fromTkColor(std::string tkColorName);
+public:
+    TraCIColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+    static TraCIColor fromTkColor(std::string tkColorName);
 
-	public:
-		uint8_t red;
-		uint8_t green;
-		uint8_t blue;
-		uint8_t alpha;
+public:
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t alpha;
 };
 
-}
-
-#endif
-
+} // namespace Veins

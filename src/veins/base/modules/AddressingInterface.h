@@ -5,13 +5,13 @@
  *      Author: Karl Wessel
  */
 
-#ifndef ADDRESSINGINTERFACE_H_
-#define ADDRESSINGINTERFACE_H_
+#pragma once
 
-#include <omnetpp.h>
+#include "veins/veins.h"
 
-#include "veins/base/utils/MiXiMDefs.h"
 #include "veins/base/utils/SimpleAddress.h"
+
+namespace Veins {
 
 /**
  * @brief Interface for modules which assign L2 and L3 addresses for modules.
@@ -30,7 +30,7 @@
  *
  * @author Karl Wessel
  */
-class MIXIM_API AddressingInterface {
+class VEINS_API AddressingInterface {
 public:
     /** @brief Returns the L2 address for the passed mac.*/
     virtual LAddress::L2Type myMacAddr(const cModule* mac) const = 0;
@@ -39,4 +39,4 @@ public:
     virtual LAddress::L3Type myNetwAddr(const cModule* netw) const = 0;
 };
 
-#endif /* ADDRESSINGINTERFACE_H_ */
+} // namespace Veins

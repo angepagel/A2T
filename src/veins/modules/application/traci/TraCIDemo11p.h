@@ -18,10 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TraCIDemo11p_H
-#define TraCIDemo11p_H
+#pragma once
 
-#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
+#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
+
+namespace Veins {
 
 /**
  * @brief
@@ -29,33 +30,36 @@
  * it will send a message out to other cars containing the blocked road id.
  * Receiving cars will then trigger a reroute via TraCI.
  * When channel switching between SCH and CCH is enabled on the MAC, the message is
- * instead send out on a service channel following a WAVE Service Advertisement
+ * instead send out on a service channel following a Service Advertisement
  * on the CCH.
  *
  * @author Christoph Sommer : initial DemoApp
- * @author David Eckhoff : rewriting, moving functionality to BaseWaveApplLayer, adding WSA
+ * @author David Eckhoff : rewriting, moving functionality to DemoBaseApplLayer, adding WSA
  *
  */
 
-class TraCIDemo11p : public BaseWaveApplLayer {
-	public:
-		virtual void initialize(int stage);
-	protected:
-		simtime_t lastDroveAt;
-		bool sentMessage;
-		int currentSubscribedServiceId;
-		// -------------------------- A2T --------------------------
-        bool a2t; /* Enable or disable A2T communications */
-        int priority; /* [AMU] Priority of the ambulance */
-		simtime_t lastBroadcastAt; /* [AMU] Simulation time of the last message broadcasted */
-		long lastMessageTreeId; /* Tree ID of the last message received */
-		// -------------------------- A2T --------------------------
-	protected:
-        virtual void onWSM(WaveShortMessage* wsm);
-        virtual void onWSA(WaveServiceAdvertisment* wsa);
+class TraCIDemo11p : public DemoBaseApplLayer {
+public:
+    void initialize(int stage) override;
 
-        virtual void handleSelfMsg(cMessage* msg);
-		virtual void handlePositionUpdate(cObject* obj);
+protected:
+    simtime_t lastDroveAt;
+    bool sentMessage;
+    int currentSubscribedServiceId;
+    // -------------------------- A2T --------------------------
+    bool a2t; /* Enable or disable A2T communications */
+    int priority; /* [AMU] Priority of the ambulance */
+    simtime_t lastBroadcastAt; /* [AMU] Simulation time of the last message broadcasted */
+    long lastMessageTreeId; /* Tree ID of the last message received */
+    int warningDistance;
+    // -------------------------- A2T --------------------------
+
+protected:
+    void onWSM(BaseFrame1609_4* wsm) override;
+    void onWSA(DemoServiceAdvertisment* wsa) override;
+
+    void handleSelfMsg(cMessage* msg) override;
+    void handlePositionUpdate(cObject* obj) override;
 };
 
-#endif
+} // namespace Veins

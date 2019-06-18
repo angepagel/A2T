@@ -18,12 +18,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WORLD_TRACI_TRACISCENARIOMANAGERLAUNCHD_H
-#define WORLD_TRACI_TRACISCENARIOMANAGERLAUNCHD_H
+#pragma once
 
-#include <omnetpp.h>
+#include "veins/veins.h"
 
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
+
+namespace Veins {
 
 /**
  * @brief
@@ -42,32 +43,25 @@
  * @see TraCIScenarioManager
  *
  */
-namespace Veins {
-class TraCIScenarioManagerLaunchd : public TraCIScenarioManager
-{
-	public:
+class TraCIScenarioManagerLaunchd : public TraCIScenarioManager {
+public:
+    ~TraCIScenarioManagerLaunchd() override;
+    void initialize(int stage) override;
+    void finish() override;
 
-		virtual ~TraCIScenarioManagerLaunchd();
-		virtual void initialize(int stage);
-		virtual void finish();
+protected:
+    cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
+    int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
 
-	protected:
-
-		cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
-		int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-
-		virtual void init_traci();
+    void init_traci() override;
 };
-}
 
-namespace Veins {
-class TraCIScenarioManagerLaunchdAccess
-{
-	public:
-		TraCIScenarioManagerLaunchd* get() {
-			return FindModule<TraCIScenarioManagerLaunchd*>::findGlobalModule();
-		};
+class TraCIScenarioManagerLaunchdAccess {
+public:
+    TraCIScenarioManagerLaunchd* get()
+    {
+        return FindModule<TraCIScenarioManagerLaunchd*>::findGlobalModule();
+    };
 };
-}
 
-#endif
+} // namespace Veins

@@ -16,11 +16,11 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-
-#ifndef LINEAR_MOBILITY_H
-#define LINEAR_MOBILITY_H
+#pragma once
 
 #include "veins/base/modules/BaseMobility.h"
+
+namespace Veins {
 
 /**
  * @brief Linear movement model. See NED file for more info.
@@ -32,25 +32,23 @@
  * @ingroup mobility
  * @author Emin Ilker Cetinbas
  */
-class MIXIM_API LinearMobility : public BaseMobility
-{
-  protected:
-    double angle;          ///< angle of linear motion
-    double acceleration;   ///< acceleration of linear motion
+class VEINS_API LinearMobility : public BaseMobility {
+protected:
+    double angle; ///< angle of linear motion
+    double acceleration; ///< acceleration of linear motion
 
     /** @brief always stores the last step for position display update */
     Coord stepTarget;
 
-  public:
+public:
     /** @brief Initializes mobility model parameters.*/
-    virtual void initialize(int);
+    void initialize(int) override;
 
-  protected:
+protected:
     /** @brief Move the host*/
-    virtual void makeMove();
+    void makeMove() override;
 
-    virtual void fixIfHostGetsOutside();
+    void fixIfHostGetsOutside() override;
 };
 
-#endif
-
+} // namespace Veins

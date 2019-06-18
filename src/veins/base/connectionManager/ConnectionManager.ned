@@ -35,8 +35,7 @@ package org.car2x.veins.base.connectionManager;
 simple ConnectionManager
 {
     parameters:
-        // debug switch for core framework
-        bool coreDebug;
+        @class(Veins::ConnectionManager);
         // send directly to the node or create separate gates for every connection
         bool sendDirect;
         // maximum interference distance [m]

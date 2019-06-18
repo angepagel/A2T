@@ -20,60 +20,89 @@
 
 #include "veins/modules/application/traci/TraCIDemoRSU11p.h"
 
-Define_Module(TraCIDemoRSU11p);
+#include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
-void TraCIDemoRSU11p::onWSA(WaveServiceAdvertisment* wsa) {
-    //if this RSU receives a WSA for service 42, it will tune to the chan
-    if (wsa->getPsid() == 42) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+using namespace Veins;
+
+Define_Module(Veins::TraCIDemoRSU11p);
+
+void TraCIDemoRSU11p::initialize(int stage) {
+    DemoBaseApplLayer::initialize(stage);
+    if (stage == 0)
+    {
+        lastMessageTreeId = 0;
+        reinitializationDelay = 3;
+        lastUpdate = simTime();
+        highestPriority = 0;
     }
 }
 
-void TraCIDemoRSU11p::onWSM(WaveShortMessage* wsm) {
+void TraCIDemoRSU11p::onWSA(DemoServiceAdvertisment* wsa)
+{
+    // if this RSU receives a WSA for service 42, it will tune to the chan
+    if (wsa->getPsid() == 42) {
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
+    }
+}
 
-    // -------------------------- Veins example original code --------------------------
-    /*
-    //this rsu repeats the received traffic update in 2 seconds plus some random delay
-    wsm->setSenderAddress(myId);
-    sendDelayedDown(wsm->dup(), 2 + uniform(0.01,0.2));
-    */
-    // -------------------------- Veins example original code --------------------------
-
-    // -------------------------- A2T --------------------------
-
+void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
+{
     /* For some reason, an initialize() function wouldn't initialize the traci interface.
      * Meanwhile, this is done manually here. :^(
      */
     Veins::TraCIScenarioManager* manager = Veins::TraCIScenarioManagerAccess().get();
     TraCICommandInterface* traci = manager->getCommandInterface();
 
-    EV << "======================= RSU INFORMATION =======================" << endl;
+    TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
 
-    if (wsm->getAmbulance())
+    if (associatedTlId.empty())
     {
-        EV << "<!> Received a message from an AMU." << endl;
-
-        std::string amuRoadId = traci->lane(wsm->getLaneId()).getRoadId();
-
-        // For each traffic light
-        for (auto const& tlId: traci->getTrafficlightIds())
+        for (std::string junctionId: traci->getJunctionIds())
         {
-            std::list<std::string> controlledLanesIds = traci->trafficlight(tlId).getControlledLanes();
+            TraCICommandInterface::Junction junction = traci->junction(junctionId);
+            double distanceFromJunction = traci->getDistance(curPosition, junction.getPosition(), false);
 
-            // Checks if the traffic light has to be set back to its normal state
-            traci->trafficlight(tlId).checkForReinitialization();
-
-            // For each controlled lane
-            for (std::string laneId: controlledLanesIds)
+            if (distanceFromJunction < 10)
             {
-                // Is the controlled lane's road the same as the AMU road ?
-                if (traci->lane(laneId).getRoadId() == amuRoadId)
-                {
-                    traci->trafficlight(tlId).prioritizeRoad(amuRoadId);
-                    break;
-                }
+                for (std::string tlId: traci->getTrafficlightIds())
+                    if (junctionId == tlId) associatedTlId = tlId;
             }
         }
     }
-    // -------------------------- A2T --------------------------
+
+    TraCICommandInterface::Trafficlight associatedTl = traci->trafficlight(associatedTlId);
+
+    long messageTreeId = wsm->getTreeId();
+
+    if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
+    {
+        lastMessageTreeId = messageTreeId;
+
+        if (simTime()-lastUpdate >= reinitializationDelay)
+        {
+            lastUpdate = simTime();
+            highestPriority = 0;
+            associatedTl.reinitialize(); // Checks if the traffic light has to be set back to its normal state
+        }
+
+        int wsmPriority = wsm->getPriority();
+
+        if (wsm->getIsFromAmbulance())
+        {
+            std::string amuLaneId = wsm->getAmuLaneId();
+            std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
+
+            if (associatedTl.isControlling(amuRoadId))
+            {
+                if (wsmPriority >= highestPriority)
+                {
+                    highestPriority = wsmPriority;
+                    lastUpdate = simTime();
+
+                    associatedTl.prioritizeRoad(amuRoadId);
+                }
+            }
+       }
+    }
+    else EV << "<!> This message has already been processed." << endl;
 }

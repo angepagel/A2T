@@ -18,56 +18,58 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "MyVeinsApp.h"
+#include "veins/modules/application/traci/MyVeinsApp.h"
 
-Define_Module(MyVeinsApp);
+using namespace Veins;
 
-void MyVeinsApp::initialize(int stage) {
-    BaseWaveApplLayer::initialize(stage);
+Define_Module(Veins::MyVeinsApp);
+
+void MyVeinsApp::initialize(int stage)
+{
+    DemoBaseApplLayer::initialize(stage);
     if (stage == 0) {
-        //Initializing members and pointers of your application goes here
+        // Initializing members and pointers of your application goes here
         EV << "Initializing " << par("appName").stringValue() << std::endl;
     }
     else if (stage == 1) {
-        //Initializing members that require initialized other modules goes here
-
+        // Initializing members that require initialized other modules goes here
     }
 }
 
-void MyVeinsApp::finish() {
-    BaseWaveApplLayer::finish();
-    //statistics recording goes here
-
+void MyVeinsApp::finish()
+{
+    DemoBaseApplLayer::finish();
+    // statistics recording goes here
 }
 
-void MyVeinsApp::onBSM(BasicSafetyMessage* bsm) {
-    //Your application has received a beacon message from another car or RSU
-    //code for handling the message goes here
-
+void MyVeinsApp::onBSM(DemoSafetyMessage* bsm)
+{
+    // Your application has received a beacon message from another car or RSU
+    // code for handling the message goes here
 }
 
-void MyVeinsApp::onWSM(WaveShortMessage* wsm) {
-    //Your application has received a data message from another car or RSU
-    //code for handling the message goes here, see TraciDemo11p.cc for examples
-
+void MyVeinsApp::onWSM(BaseFrame1609_4* wsm)
+{
+    // Your application has received a data message from another car or RSU
+    // code for handling the message goes here, see TraciDemo11p.cc for examples
 }
 
-void MyVeinsApp::onWSA(WaveServiceAdvertisment* wsa) {
-    //Your application has received a service advertisement from another car or RSU
-    //code for handling the message goes here, see TraciDemo11p.cc for examples
-
+void MyVeinsApp::onWSA(DemoServiceAdvertisment* wsa)
+{
+    // Your application has received a service advertisement from another car or RSU
+    // code for handling the message goes here, see TraciDemo11p.cc for examples
 }
 
-void MyVeinsApp::handleSelfMsg(cMessage* msg) {
-    BaseWaveApplLayer::handleSelfMsg(msg);
-    //this method is for self messages (mostly timers)
-    //it is important to call the BaseWaveApplLayer function for BSM and WSM transmission
-
+void MyVeinsApp::handleSelfMsg(cMessage* msg)
+{
+    DemoBaseApplLayer::handleSelfMsg(msg);
+    // this method is for self messages (mostly timers)
+    // it is important to call the DemoBaseApplLayer function for BSM and WSM transmission
 }
 
-void MyVeinsApp::handlePositionUpdate(cObject* obj) {
-    BaseWaveApplLayer::handlePositionUpdate(obj);
-    //the vehicle has moved. Code that reacts to new positions goes here.
-    //member variables such as currentPosition and currentSpeed are updated in the parent class
-
+void MyVeinsApp::handlePositionUpdate(cObject* obj)
+{
+    DemoBaseApplLayer::handlePositionUpdate(obj);
+    // the vehicle has moved. Code that reacts to new positions goes here.
+    // member variables such as currentPosition and currentSpeed are updated in the parent class
 }

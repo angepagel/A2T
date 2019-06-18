@@ -18,43 +18,42 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <veins/modules/mobility/traci/TraCICoordinateTransformation.h>
+#include "veins/modules/mobility/traci/TraCICoordinateTransformation.h"
 
 namespace Veins {
 
 using OmnetCoord = TraCICoordinateTransformation::OmnetCoord;
 using OmnetCoordList = TraCICoordinateTransformation::OmnetCoordList;
 using TraCICoordList = TraCICoordinateTransformation::TraCICoordList;
-using Angle = TraCICoordinateTransformation::Angle;
+using OmnetHeading = TraCICoordinateTransformation::OmnetHeading;
+using TraCIHeading = TraCICoordinateTransformation::TraCIHeading;
 
 TraCICoordinateTransformation::TraCICoordinateTransformation(TraCICoord topleft, TraCICoord bottomright, float margin)
-    : dimensions( {bottomright.x - topleft.x, bottomright.y - topleft.y} )
+    : dimensions({bottomright.x - topleft.x, bottomright.y - topleft.y})
     , topleft(topleft)
     , bottomright(bottomright)
     , margin(margin)
-{}
+{
+}
 
 TraCICoord TraCICoordinateTransformation::omnet2traci(const OmnetCoord& coord) const
 {
-    return {
-        coord.x + topleft.x - margin,
-        dimensions.y - (coord.y - topleft.y) + margin
-    };
+    return {coord.x + topleft.x - margin, dimensions.y - (coord.y - topleft.y) + margin};
 }
 
 TraCICoordList TraCICoordinateTransformation::omnet2traci(const OmnetCoordList& coords) const
 {
     TraCICoordList result;
-    for(auto&& coord : coords) {
+    for (auto&& coord : coords) {
         result.push_back(omnet2traci(coord));
     }
     return result;
 }
 
-Angle TraCICoordinateTransformation::omnet2traciAngle(Angle angle) const
+TraCIHeading TraCICoordinateTransformation::omnet2traciHeading(OmnetHeading o) const
 {
     // convert to degrees
-    angle = angle * 180 / M_PI;
+    auto angle = o.getRad() * 180 / M_PI;
 
     // rotate angle
     angle = 90 - angle;
@@ -72,25 +71,22 @@ Angle TraCICoordinateTransformation::omnet2traciAngle(Angle angle) const
 
 OmnetCoord TraCICoordinateTransformation::traci2omnet(const TraCICoord& coord) const
 {
-    return {
-        coord.x - topleft.x + margin,
-        dimensions.y - (coord.y - topleft.y) + margin
-    };
+    return {coord.x - topleft.x + margin, dimensions.y - (coord.y - topleft.y) + margin};
 }
 
 OmnetCoordList TraCICoordinateTransformation::traci2omnet(const TraCICoordList& coords) const
 {
     OmnetCoordList result;
-    for(auto&& coord : coords) {
+    for (auto&& coord : coords) {
         result.push_back(traci2omnet(coord));
     }
     return result;
 }
 
-Angle TraCICoordinateTransformation::traci2omnetAngle(Angle angle) const
+OmnetHeading TraCICoordinateTransformation::traci2omnetHeading(TraCIHeading o) const
 {
     // rotate angle
-    angle = 90 - angle;
+    auto angle = 90 - o;
 
     // convert to rad
     angle = angle * M_PI / 180.0;
@@ -103,7 +99,7 @@ Angle TraCICoordinateTransformation::traci2omnetAngle(Angle angle) const
         angle -= 2 * M_PI;
     }
 
-    return angle;
+    return OmnetHeading(angle);
 }
 
 } // end namespace Veins

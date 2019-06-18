@@ -19,11 +19,11 @@
  *              ConnectionManager module
  **************************************************************************/
 
-#ifndef NICENTRYDIRECT_H
-#define NICENTRYDIRECT_H
+#pragma once
 
 #include "veins/base/connectionManager/NicEntry.h"
 
+namespace Veins {
 
 /**
  * @brief NicEntry is used by ConnectionManager to store the necessary
@@ -33,29 +33,31 @@
  * @author Daniel Willkomm
  * @sa ConnectionManager, NicEntry
  */
-class NicEntryDirect: public NicEntry
-{
-  public:
+class NicEntryDirect : public NicEntry {
+public:
     /** @brief Constructor, initializes all members
      */
-    NicEntryDirect(bool debug) : NicEntry(debug) {};
+    NicEntryDirect(cComponent* owner)
+        : NicEntry(owner){};
 
     /**
      * @brief Destructor -- needs to be there...
      */
-    virtual ~NicEntryDirect() {}
+    ~NicEntryDirect() override
+    {
+    }
 
     /** @brief Connect two nics
      *
-	 * Establish unidirectional connection with other nic
-	 *
-	 * @param other reference to remote nic (other NicEntry)
-	 *
-	 * This function acquires an in gate at the remote nic and an out
-	 * gate at this nic, connects the two and updates the freeInGate,
-	 * freeOutGate and outConns data sets.
-	 */
-    virtual void connectTo(NicEntry*);
+     * Establish unidirectional connection with other nic
+     *
+     * @param other reference to remote nic (other NicEntry)
+     *
+     * This function acquires an in gate at the remote nic and an out
+     * gate at this nic, connects the two and updates the freeInGate,
+     * freeOutGate and outConns data sets.
+     */
+    void connectTo(NicEntry*) override;
 
     /** @brief Disconnect two nics
      *
@@ -63,7 +65,7 @@ class NicEntryDirect: public NicEntry
      *
      * @param other reference to remote nic (other NicEntry)
      */
-    virtual void disconnectFrom(NicEntry*);
+    void disconnectFrom(NicEntry*) override;
 };
 
-#endif
+} // namespace Veins

@@ -4,11 +4,9 @@
 
 #include "veins/base/modules/BaseWorldUtility.h"
 
-#ifndef ccEV
-#define ccEV EV_DEBUG << getName() << ": "
-#endif
+using namespace Veins;
 
-Define_Module( ConnectionManager );
+Define_Module(Veins::ConnectionManager);
 
 double ConnectionManager::calcInterfDist()
 {
@@ -19,10 +17,10 @@ double ConnectionManager::calcInterfDist()
      * distance himself. */
     if (hasPar("maxInterfDist")) {
         double interfDistance = par("maxInterfDist").doubleValue();
-        ccEV << "max interference distance:" << interfDistance << endl;
+        EV_INFO << "max interference distance:" << interfDistance << endl;
         return interfDistance;
-    } else {
+    }
+    else {
         throw cRuntimeError("ConnectionManager: No value for maximum interference distance (maxInterfDist) provided.");
     }
 }
-

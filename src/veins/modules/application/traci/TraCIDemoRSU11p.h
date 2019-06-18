@@ -18,18 +18,26 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TraCIDemoRSU11p_H
-#define TraCIDemoRSU11p_H
+#pragma once
 
-#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
+#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
+
+namespace Veins {
 
 /**
  * Small RSU Demo using 11p
  */
-class TraCIDemoRSU11p : public BaseWaveApplLayer {
-	protected:
-		virtual void onWSM(WaveShortMessage* wsm);
-		virtual void onWSA(WaveServiceAdvertisment* wsa);
+class TraCIDemoRSU11p : public DemoBaseApplLayer {
+protected:
+    std::string associatedTlId; /* ID of the traffic light associated to the RSU */
+    long lastMessageTreeId; /* Tree ID of the last message received */
+    simtime_t reinitializationDelay; /* Time before the highest priority known is reinitialized at 0 */
+    simtime_t lastUpdate;
+    int highestPriority;
+protected:
+    void initialize(int stage);
+    void onWSM(BaseFrame1609_4* wsm) override;
+    void onWSA(DemoServiceAdvertisment* wsa) override;
 };
 
-#endif
+} // namespace Veins

@@ -19,20 +19,19 @@
  *              ConnectionManager module
  **************************************************************************/
 
-#ifndef NICENTRY_H
-#define NICENTRY_H
+#pragma once
 
-#include <omnetpp.h>
 #include <map>
 
-#include "veins/base/utils/MiXiMDefs.h"
+#include "veins/veins.h"
+
 #include "veins/base/utils/Coord.h"
+#include "veins/base/utils/Heading.h"
+#include "veins/modules/utility/HasLogProxy.h"
 
 namespace Veins {
-class ChannelAccess;
-}
-using Veins::ChannelAccess;
 
+class ChannelAccess;
 
 /**
  * @brief NicEntry is used by ConnectionManager to store the necessary
@@ -42,24 +41,25 @@ using Veins::ChannelAccess;
  * @author Daniel Willkomm
  * @sa ConnectionManager
  */
-class MIXIM_API NicEntry : public cObject
-{
+class VEINS_API NicEntry : public HasLogProxy {
 protected:
-	class NicEntryComparator {
-	  public:
-		bool operator() (const NicEntry* nic1, const NicEntry* nic2) const {
-			return nic1->nicId < nic2->nicId;
-		}
-	};
-  public:
-	/** @brief Type for map from NicEntry pointer to a gate.*/
+    class NicEntryComparator {
+    public:
+        bool operator()(const NicEntry* nic1, const NicEntry* nic2) const
+        {
+            return nic1->nicId < nic2->nicId;
+        }
+    };
+
+public:
+    /** @brief Type for map from NicEntry pointer to a gate.*/
     typedef std::map<const NicEntry*, cGate*, NicEntryComparator> GateList;
 
     /** @brief module id of the nic for which information is stored*/
     int nicId;
 
     /** @brief Pointer to the NIC module */
-    cModule *nicPtr;
+    cModule* nicPtr;
 
     /** @brief Module id of the host module this nic belongs to*/
     int hostId;
@@ -67,13 +67,13 @@ protected:
     /** @brief Geographic location of the nic*/
     Coord pos;
 
+    /** @brief Heading (angle) of the nic*/
+    Heading heading;
+
     /** @brief Points to this nics ChannelAccess module */
     ChannelAccess* chAccess;
 
-  protected:
-    /** @brief Debug output switch*/
-    bool coreDebug;
-
+protected:
     /** @brief Outgoing connections of this nic
      *
      * This map stores all connection for this nic to other nics
@@ -83,18 +83,22 @@ protected:
      **/
     GateList outConns;
 
-  public:
+public:
     /**
      * @brief Constructor, initializes all members
      */
-    NicEntry(bool debug) : nicId(0), nicPtr(0), hostId(0){
-        coreDebug = debug;
-    };
+    NicEntry(cComponent* owner)
+        : HasLogProxy(owner)
+        , nicId(0)
+        , nicPtr(nullptr)
+        , hostId(0){};
 
     /**
      * @brief Destructor -- needs to be there...
      */
-    virtual ~NicEntry() {}
+    virtual ~NicEntry()
+    {
+    }
 
     /** @brief Connect two nics */
     virtual void connectTo(NicEntry*) = 0;
@@ -103,12 +107,14 @@ protected:
     virtual void disconnectFrom(NicEntry*) = 0;
 
     /** @brief return the actual gateList*/
-    const GateList& getGateList(){
-    	return outConns;
+    const GateList& getGateList()
+    {
+        return outConns;
     }
 
     /** @brief Checks if this nic is connected to the "other" nic*/
-    bool isConnected(const NicEntry* other) {
+    bool isConnected(const NicEntry* other)
+    {
         return (outConns.find(other) != outConns.end());
     };
 
@@ -122,9 +128,8 @@ protected:
      */
     const cGate* getOutGateTo(const NicEntry* to)
     {
-    	return outConns[to];
+        return outConns[to];
     };
-
 };
 
-#endif
+} // namespace Veins

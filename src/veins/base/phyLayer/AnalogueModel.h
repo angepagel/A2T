@@ -1,13 +1,18 @@
-#ifndef ANALOGUEMODEL_
-#define ANALOGUEMODEL_
+#pragma once
 
-#include "veins/base/utils/MiXiMDefs.h"
+#include <memory>
+#include <vector>
+
+#include "veins/veins.h"
+
+#include "veins/base/utils/AntennaPosition.h"
 #include "veins/base/utils/Coord.h"
+#include "veins/modules/utility/HasLogProxy.h"
 
 namespace Veins {
+
 class AirFrame;
-}
-using Veins::AirFrame;
+class Signal;
 
 /**
  * @brief Interface for the analogue models of the physical layer.
@@ -16,29 +21,40 @@ using Veins::AirFrame;
  * the attenuation value of a Signal to simulate things like
  * shadowing, fading, pathloss or obstacles.
  *
- * Note: The Mapping this an AnalogeuModel adds to a signal has
- * to define absolute time positions not relative.
- * Meaning the position zero refers to the simulation start not
- * the signal start.
- *
  * @ingroup analogueModels
  */
-class MIXIM_API AnalogueModel {
+class VEINS_API AnalogueModel : public HasLogProxy {
 
 public:
-	virtual ~AnalogueModel() {}
+    AnalogueModel(cComponent* owner)
+        : HasLogProxy(owner)
+    {
+    }
 
-	/**
-	 * @brief Has to be overriden by every implementation.
-	 *
-	 * Filters a specified AirFrame's Signal by adding an attenuation
-	 * over time to the Signal.
-	 *
-	 * @param frame			The incomming frame.
-	 * @param sendersPos	The position of the frame sender.
-	 * @param receiverPos	The position of frame receiver.
-	 */
-	virtual void filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos) = 0;
+    virtual ~AnalogueModel()
+    {
+    }
+
+    /**
+     * @brief Has to be overriden by every implementation.
+     *
+     * Filters a specified AirFrame's Signal by adding an attenuation
+     * over time to the Signal.
+     *
+     * @param signal        The signal to filter.
+     */
+    virtual void filterSignal(Signal* signal) = 0;
+
+    /**
+     * If the model never increases the power level of any signal given to filterSignal, it returns true here.
+     * This allows optimized signal handling.
+     */
+    virtual bool neverIncreasesPower()
+    {
+        return false;
+    }
 };
 
-#endif /*ANALOGUEMODEL_*/
+using AnalogueModelList = std::vector<std::unique_ptr<AnalogueModel>>;
+
+} // namespace Veins

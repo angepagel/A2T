@@ -4,8 +4,7 @@ package org.car2x.veins.base.modules;
 simple BaseMacLayer extends BaseLayer like IWirelessMac
 {
     parameters:
-        @class(BaseMacLayer);
-        bool   coreDebug = default(false);          // debug switch
+        @class(Veins::BaseMacLayer);
         int    headerLength @unit(bit);           // length of the MAC packet header (in bits)
         string address = default("auto");         // MAC address as hex string (12 hex digits), or
                                                   // "auto". "auto" values will be replaced by

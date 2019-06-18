@@ -8,17 +8,17 @@
     <route id="horizontal1" edges="23757213#1 23757213#3 23757213#4 23757213#5"/>
     <route id="vertical0" edges="-23464391#1 -23464391#0 -23758704#2"/>
     <route id="vertical1" edges="23758704#2 23464391#0 23464391#1"/>
+    <route id="amuPath0" edges="23758704#2 23757213#3 23757213#4 23464390#0 -23516452#0 23464391#1"/>
+    <route id="amuPath1" edges="-23464390#1 -23464390#0 23757213#5"/>
    
-    <flow id="horitonzalFlow0" type="passenger" route="horizontal0" begin="0" period="2" number="3"/>
-    <flow id="horitonzalFlow1" type="passenger" route="horizontal1" begin="0" period="2" number="3"/>
-    <flow id="verticalFlow0" type="passenger" route="vertical0" begin="0" period="2" number="3"/>
-    <flow id="verticalFlow1" type="passenger" route="vertical1" begin="0" period="2" number="3"/>
+    <flow id="horitonzalFlow0" type="passenger" route="horizontal0" begin="0" period="3" number="10"/>
+    <flow id="horitonzalFlow1" type="passenger" route="horizontal1" begin="0" period="3" number="10"/>
+    <flow id="verticalFlow0" type="passenger" route="vertical0" begin="0" period="3" number="10"/>
+    <flow id="verticalFlow1" type="passenger" route="vertical1" begin="0" period="3" number="10"/>
+    <flow id="amuFlow" type="passenger" route="amuPath0" begin="0" period="1" number="5"/>
     
     <vehicle id="0" depart="0.00" type="passenger">
         <route edges="-23464390#0 23464390#0 -23516452#0 -23464391#0"/>
-    </vehicle>
-    <vehicle id="1" depart="2.00" type="passenger">
-        <route edges="-23464390#1 -23464390#0 23757213#5"/>
     </vehicle>
     <vehicle id="2" depart="4.00" type="passenger">
         <route edges="-23464390#1 -23464390#0 23757213#5"/>
@@ -26,10 +26,8 @@
     <vehicle id="3" depart="4.00" type="passenger">
         <route edges="-23758703 23757213#4 23464390#0 23516452#1"/>
     </vehicle>
-    <vehicle id="4" depart="5.00" type="ambulance">
-        <route edges="23758704#2 23757213#3 23757213#4 23464390#0 -23516452#0 23464391#1"/>
-    </vehicle>
-    <vehicle id="5" depart="6.00" type="ambulance">
+    <vehicle id="amu0" depart="6.00" type="ambulance" route="amuPath0"/>
+    <vehicle id="5" depart="6.00" type="passenger">
         <route edges="-23464390#1 -23464390#0 23757213#5"/>
     </vehicle>
    	<vehicle id="6" depart="6.00" type="passenger">
@@ -45,8 +43,9 @@
         <route edges="23758704#2 23757213#3 23757213#4 23464390#0 -23464390#0"/>
     </vehicle>
     <vehicle id="10" depart="12.00" type="passenger">
-        <route edges="-23757213#5 23464390#0 -23516452#0 23516452#0"/>
+        <route edges="-23757213#5 23464390#0 -23516452#0 23464391#1"/>
     </vehicle>
+    <vehicle id="amu1" depart="12.50" type="ambulance" route="amuPath1"/>
     <vehicle id="11" depart="14.00" type="passenger">
         <route edges="-23464390#0"/>
     </vehicle>

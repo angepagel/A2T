@@ -18,13 +18,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WORLD_TRACI_TRACISCENARIOMANAGERFORKER_H
-#define WORLD_TRACI_TRACISCENARIOMANAGERFORKER_H
+#pragma once
 
-#include <omnetpp.h>
+#include "veins/veins.h"
 
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "veins/modules/mobility/traci/TraCILauncher.h"
+
+namespace Veins {
 
 /**
  * @brief
@@ -41,37 +42,29 @@
  * @see TraCIScenarioManager
  *
  */
-namespace Veins {
-class TraCIScenarioManagerForker : public TraCIScenarioManager
-{
-	public:
+class TraCIScenarioManagerForker : public TraCIScenarioManager {
+public:
+    TraCIScenarioManagerForker();
+    ~TraCIScenarioManagerForker() override;
+    void initialize(int stage) override;
+    void finish() override;
 
-		TraCIScenarioManagerForker();
-		virtual ~TraCIScenarioManagerForker();
-		virtual void initialize(int stage);
-		virtual void finish();
+protected:
+    std::string commandLine; /**< command line for running TraCI server (substituting $configFile, $seed, $port) */
+    std::string configFile; /**< substitution for $configFile parameter */
+    int seed; /**< substitution for $seed parameter (-1: current run number) */
 
-	protected:
+    TraCILauncher* server;
 
-		std::string commandLine; /**< command line for running TraCI server (substituting $configFile, $seed, $port) */
-		std::string configFile; /**< substitution for $configFile parameter */
-		int seed; /**< substitution for $seed parameter (-1: current run number) */
-
-		TraCILauncher* server;
-
-		virtual void startServer();
-		virtual void killServer();
+    virtual void startServer();
+    virtual void killServer();
 };
-}
 
-namespace Veins {
-class TraCIScenarioManagerForkerAccess
-{
-	public:
-		TraCIScenarioManagerForker* get() {
-			return FindModule<TraCIScenarioManagerForker*>::findGlobalModule();
-		};
+class TraCIScenarioManagerForkerAccess {
+public:
+    TraCIScenarioManagerForker* get()
+    {
+        return FindModule<TraCIScenarioManagerForker*>::findGlobalModule();
+    };
 };
-}
-
-#endif
+} // namespace Veins

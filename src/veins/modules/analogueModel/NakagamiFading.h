@@ -19,13 +19,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ANALOGUEMODEL_NAKAGAMIFADING_H
-#define ANALOGUEMODEL_NAKAGAMIFADING_H
+#pragma once
 
 #include "veins/base/phyLayer/AnalogueModel.h"
 #include "veins/base/modules/BaseWorldUtility.h"
-#include "veins/base/phyLayer/MappingBase.h"
 #include "veins/base/messages/AirFrame_m.h"
+
+namespace Veins {
 
 /**
  * @brief
@@ -40,29 +40,28 @@
  *
  * @ingroup analogueModels
  */
-class NakagamiFading: public AnalogueModel {
+class NakagamiFading : public AnalogueModel {
 
-	public:
-		NakagamiFading(bool constM, double m, bool debug) :
-		    constM(constM),
-		    m(m),
-			debug(debug) {}
+public:
+    NakagamiFading(cComponent* owner, bool constM, double m)
+        : AnalogueModel(owner)
+        , constM(constM)
+        , m(m)
+    {
+    }
 
-		virtual ~NakagamiFading() {}
+    ~NakagamiFading() override
+    {
+    }
 
-	virtual void filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos);
+    void filterSignal(Signal* signal) override;
 
+protected:
+    /** @brief Whether to use a constant m or a m based on distance */
+    bool constM;
 
-	protected:
-
-		/** @brief Whether to use a constant m or a m based on distance */
-		bool constM;
-
-		/** @brief The value of the coefficient m */
-		double m;
-
-		/** @brief Whether debug messages should be displayed. */
-		bool debug;
+    /** @brief The value of the coefficient m */
+    double m;
 };
 
-#endif /* ANALOGUEMODEL_NAKAGAMIFADING_H */
+} // namespace Veins
