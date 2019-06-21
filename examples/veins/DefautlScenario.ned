@@ -16,7 +16,7 @@
 import org.car2x.veins.nodes.RSU;
 import org.car2x.veins.nodes.Scenario;
 
-network RSUExampleScenario extends Scenario
+network DefaultScenario extends Scenario
 {
     submodules:
         rsu[5]: RSU {
