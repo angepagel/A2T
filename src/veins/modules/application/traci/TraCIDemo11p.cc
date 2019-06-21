@@ -156,6 +156,7 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj)
                 populateWSM(wsm);
 
                 wsm->setIsFromAmbulance(true);
+                wsm->setAmuId(mobility->getExternalId().c_str());
                 wsm->setAmuLaneId(traciVehicle->getLaneId().c_str());
                 wsm->setPriority(priority);
                 wsm->setSenderX(posX);

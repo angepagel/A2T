@@ -36,6 +36,7 @@ packet TraCIDemo11pMessage extends BaseFrame1609_4 {
     int serial = 0;
     // -------------------------- A2T --------------------------
 	bool isFromAmbulance;	// Is the message sent by an ambulance ?
+	string amuId;			// ID of the ambulance
 	int priority; 			// Priority of the message
 	string amuLaneId; 		// Lane ID of the ambulance
 	double amuX;			// x position of the ambulance
