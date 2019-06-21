@@ -29,9 +29,11 @@ namespace Veins {
  */
 class TraCIDemoRSU11p : public DemoBaseApplLayer {
 protected:
+    bool initialized;
     std::string associatedTlId; /* ID of the traffic light associated to the RSU */
     long lastMessageTreeId; /* Tree ID of the last message received */
     simtime_t reinitializationDelay; /* Time before the highest priority known is reinitialized at 0 */
+    std::string lastAmuId;
     simtime_t lastUpdate;
     int highestPriority;
 protected:

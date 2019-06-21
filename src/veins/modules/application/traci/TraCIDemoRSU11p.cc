@@ -30,8 +30,9 @@ void TraCIDemoRSU11p::initialize(int stage) {
     DemoBaseApplLayer::initialize(stage);
     if (stage == 0)
     {
+        initialized = false;
         lastMessageTreeId = 0;
-        reinitializationDelay = 3;
+        reinitializationDelay = 5;
         lastUpdate = simTime();
         highestPriority = 0;
     }
@@ -55,7 +56,7 @@ void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
 
     TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
 
-    if (associatedTlId.empty())
+    if (!initialized)
     {
         for (std::string junctionId: traci->getJunctionIds())
         {
@@ -68,41 +69,60 @@ void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
                     if (junctionId == tlId) associatedTlId = tlId;
             }
         }
+        initialized = true;
     }
 
-    TraCICommandInterface::Trafficlight associatedTl = traci->trafficlight(associatedTlId);
-
-    long messageTreeId = wsm->getTreeId();
-
-    if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
+    if (!associatedTlId.empty())
     {
-        lastMessageTreeId = messageTreeId;
+        TraCICommandInterface::Trafficlight associatedTl = traci->trafficlight(associatedTlId);
 
-        if (simTime()-lastUpdate >= reinitializationDelay)
+        long messageTreeId = wsm->getTreeId();
+
+        if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
         {
-            lastUpdate = simTime();
-            highestPriority = 0;
-            associatedTl.reinitialize(); // Checks if the traffic light has to be set back to its normal state
-        }
+            lastMessageTreeId = messageTreeId;
 
-        int wsmPriority = wsm->getPriority();
-
-        if (wsm->getIsFromAmbulance())
-        {
-            std::string amuLaneId = wsm->getAmuLaneId();
-            std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
-
-            if (associatedTl.isControlling(amuRoadId))
+            if (simTime()-lastUpdate >= reinitializationDelay)
             {
-                if (wsmPriority >= highestPriority)
-                {
-                    highestPriority = wsmPriority;
-                    lastUpdate = simTime();
-
-                    associatedTl.prioritizeRoad(amuRoadId);
-                }
+                lastUpdate = simTime();
+                lastAmuId = "none";
+                highestPriority = 0;
+                associatedTl.reinitialize(); // Check if the traffic light has to be set back to its normal state
             }
-       }
+
+            if (wsm->getIsFromAmbulance())
+            {
+                std::string amuLaneId = wsm->getAmuLaneId();
+                std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
+
+                if (associatedTl.isControlling(amuRoadId))
+                {
+                    int wsmPriority = wsm->getPriority();
+                    std::string wsmAmuId = wsm->getAmuId();
+
+                    if (wsmPriority == highestPriority)
+                    {
+                        if (wsmAmuId == lastAmuId || lastAmuId == "none")
+                        {
+                            highestPriority = wsmPriority;
+                            lastAmuId = wsmAmuId;
+                            lastUpdate = simTime();
+
+                            associatedTl.prioritizeRoad(amuRoadId);
+                        }
+                    }
+                    else if (wsmPriority > highestPriority)
+                    {
+                        highestPriority = wsmPriority;
+                        lastAmuId = wsmAmuId;
+                        lastUpdate = simTime();
+
+                        associatedTl.prioritizeRoad(amuRoadId);
+                    }
+                }
+           }
+        }
+        else EV << "<!> This message has already been processed." << endl;
     }
-    else EV << "<!> This message has already been processed." << endl;
+
 }
