@@ -39,7 +39,6 @@ protected:
 protected:
     void initialize(int stage);
     void onWSM(BaseFrame1609_4* wsm) override;
-    void onWSA(DemoServiceAdvertisment* wsa) override;
 };
 
 } // namespace Veins

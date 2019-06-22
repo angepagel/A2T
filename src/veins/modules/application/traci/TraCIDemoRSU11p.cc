@@ -38,14 +38,6 @@ void TraCIDemoRSU11p::initialize(int stage) {
     }
 }
 
-void TraCIDemoRSU11p::onWSA(DemoServiceAdvertisment* wsa)
-{
-    // if this RSU receives a WSA for service 42, it will tune to the chan
-    if (wsa->getPsid() == 42) {
-        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
-    }
-}
-
 void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
 {
     /* For some reason, an initialize() function wouldn't initialize the traci interface.
