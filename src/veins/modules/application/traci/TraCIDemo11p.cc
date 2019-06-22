@@ -38,18 +38,6 @@ void TraCIDemo11p::initialize(int stage)
     }
 }
 
-void TraCIDemo11p::onWSA(DemoServiceAdvertisment* wsa)
-{
-    if (currentSubscribedServiceId == -1) {
-        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
-        currentSubscribedServiceId = wsa->getPsid();
-        if (currentOfferedServiceId != wsa->getPsid()) {
-            stopService();
-            startService(static_cast<Channel>(wsa->getTargetChannel()), wsa->getPsid(), "Mirrored Traffic Service");
-        }
-    }
-}
-
 void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
 {
     TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
@@ -59,10 +47,7 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
     if (lastMessageTreeId != messageTreeId) // The message has not been processed yet
     {
         lastMessageTreeId = messageTreeId;
-
         int wsmPriority = wsm->getPriority();
-        int hopCount = wsm->getHopCount();
-        int maxHop = wsm->getMaxHop();
 
         if (wsm->getIsFromAmbulance())
         {
@@ -84,6 +69,8 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
                 }
             }
 
+            int hopCount = wsm->getHopCount();
+            int maxHop = wsm->getMaxHop();
 
             if (hopCount < maxHop) // Repeat the message if it has not exceeded its maximum number of hops
             {
@@ -99,31 +86,10 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
                     wsm->setSenderY(mobility->getPositionAt(simTime()).y);
                     wsm->setHopCount(++hopCount);
                     wsm->setSerial(3);
-                    scheduleAt(simTime() + uniform(0.01,0.3), wsm->dup());
+                    scheduleAt(simTime() + uniform(0.01, 0.1), wsm->dup());
                 }
             }
         }
-    }
-}
-
-void TraCIDemo11p::handleSelfMsg(cMessage* msg)
-{
-    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg)) {
-        // send this message on the service channel until the counter is 3 or higher.
-        // this code only runs when channel switching is enabled
-        sendDown(wsm->dup());
-        wsm->setSerial(wsm->getSerial() + 1);
-        if (wsm->getSerial() >= 3) {
-            // stop service advertisements
-            stopService();
-            delete (wsm);
-        }
-        else {
-            scheduleAt(simTime() + 1, wsm);
-        }
-    }
-    else {
-        DemoBaseApplLayer::handleSelfMsg(msg);
     }
 }
 
@@ -145,6 +111,7 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj)
 
                 if      (id == "amu0")  priority = 2;
                 else if (id == "amu1")  priority = 1;
+                else if (id == "amu2")  priority = 2;
             }
 
             if (simTime()-lastBroadcastAt >= broadcastInterval)

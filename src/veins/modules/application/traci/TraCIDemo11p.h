@@ -56,9 +56,6 @@ protected:
 
 protected:
     void onWSM(BaseFrame1609_4* wsm) override;
-    void onWSA(DemoServiceAdvertisment* wsa) override;
-
-    void handleSelfMsg(cMessage* msg) override;
     void handlePositionUpdate(cObject* obj) override;
 };
 
