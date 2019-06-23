@@ -626,7 +626,7 @@ void TraCICommandInterface::Trafficlight::setProgramDefinition(TraCITrafficLight
 
 // -------------------------- A2T --------------------------
 /* Set a new state for the traffic light to prioritize a specific road
- * @param roadId The ID of the road to prioritize
+ * @param roadId ID of the road to prioritize
  */
 void TraCICommandInterface::Trafficlight::prioritizeRoad(std::string roadId) {
     /* Index of the currently examined link

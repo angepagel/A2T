@@ -30,10 +30,10 @@ class BaseFrame1609_4;
 class noncobject Coord;
 class LAddress::L2Type extends void;
 
-packet TraCIDemo11pMessage extends BaseFrame1609_4 {
-    string demoData;
+packet A2TMessage11p extends BaseFrame1609_4 {
     LAddress::L2Type senderAddress = -1;
     int serial = 0;
+    
     // -------------------------- A2T --------------------------
 	bool isFromAmbulance;	// Is the message sent by an ambulance ?
 	string amuId;			// ID of the ambulance
@@ -43,7 +43,6 @@ packet TraCIDemo11pMessage extends BaseFrame1609_4 {
 	double amuY;			// y position of the ambulance
 	double senderX;			// x position of the sender
 	double senderY;			// y position of the sender
-	int actionRadius;		// Radius in which vehicles will react to the ambulance
 	int maxHop;				// Maximum number of hops of the message (lifespan)
 	int hopCount; 			// Number of hops of the message
 	// -------------------------- A2T --------------------------

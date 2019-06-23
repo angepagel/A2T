@@ -18,49 +18,40 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "veins/modules/application/traci/TraCIDemoRSU11p.h"
+#include <veins/modules/application/traci/A2TMessage11p_m.h>
+#include <veins/modules/application/traci/A2TRoadsideUnit11p.h>
 
-#include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
 using namespace Veins;
 
-Define_Module(Veins::TraCIDemoRSU11p);
+Define_Module(Veins::A2TRoadsideUnit11p);
 
-void TraCIDemoRSU11p::initialize(int stage) {
-    DemoBaseApplLayer::initialize(stage);
+void A2TRoadsideUnit11p::initialize(int stage)
+{
+    A2TBaseApplLayer::initialize(stage);
     if (stage == 0)
     {
+        // ---------------------- Simulation parameters ----------------------
+        // TODO Set these parameters in the omnetpp.ini file
+        reinitializationDelay = 5; // seconds
+        // ---------------------- Simulation parameters ----------------------
+
         initialized = false;
         lastMessageTreeId = 0;
-        reinitializationDelay = 5;
         lastUpdate = simTime();
         highestPriority = 0;
     }
 }
 
-void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
+void A2TRoadsideUnit11p::onWSM(BaseFrame1609_4* frame)
 {
-    /* For some reason, an initialize() function wouldn't initialize the traci interface.
-     * Meanwhile, this is done manually here. :^(
-     */
-    Veins::TraCIScenarioManager* manager = Veins::TraCIScenarioManagerAccess().get();
-    TraCICommandInterface* traci = manager->getCommandInterface();
-
-    TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
+    A2TMessage11p* wsm = check_and_cast<A2TMessage11p*>(frame);
 
     if (!initialized)
     {
-        for (std::string junctionId: traci->getJunctionIds())
-        {
-            TraCICommandInterface::Junction junction = traci->junction(junctionId);
-            double distanceFromJunction = traci->getDistance(curPosition, junction.getPosition(), false);
+        setTraCI();
+        associateTrafficlight();
 
-            if (distanceFromJunction < 10)
-            {
-                for (std::string tlId: traci->getTrafficlightIds())
-                    if (junctionId == tlId) associatedTlId = tlId;
-            }
-        }
         initialized = true;
     }
 
@@ -74,10 +65,16 @@ void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
         {
             lastMessageTreeId = messageTreeId;
 
+            EV << "Traffic light state:" << endl;
+            EV << "  - Cooldown: " << simTime()-lastUpdate << endl;
+            EV << "  - Highest priority: " << highestPriority << endl;
+            EV << "  - Last ambulance ID: " << memorizedAmuId << endl;
+            EV << "  - Last update: " << lastUpdate << endl;
+
             if (simTime()-lastUpdate >= reinitializationDelay)
             {
                 lastUpdate = simTime();
-                lastAmuId = "none";
+                memorizedAmuId = "none";
                 highestPriority = 0;
                 associatedTl.reinitialize(); // Check if the traffic light has to be set back to its normal state
             }
@@ -94,27 +91,49 @@ void TraCIDemoRSU11p::onWSM(BaseFrame1609_4* frame)
 
                     if (wsmPriority == highestPriority)
                     {
-                        if (wsmAmuId == lastAmuId || lastAmuId == "none")
+                        if (wsmAmuId == memorizedAmuId || memorizedAmuId == "none")
                         {
-                            highestPriority = wsmPriority;
-                            lastAmuId = wsmAmuId;
-                            lastUpdate = simTime();
-
                             associatedTl.prioritizeRoad(amuRoadId);
+                            update(wsmAmuId, wsmPriority);
                         }
                     }
                     else if (wsmPriority > highestPriority)
                     {
-                        highestPriority = wsmPriority;
-                        lastAmuId = wsmAmuId;
-                        lastUpdate = simTime();
-
                         associatedTl.prioritizeRoad(amuRoadId);
+                        update(wsmAmuId, wsmPriority);
                     }
                 }
-           }
+            }
         }
         else EV << "<!> This message has already been processed." << endl;
     }
 
+}
+
+void A2TRoadsideUnit11p::setTraCI()
+{
+    Veins::TraCIScenarioManager* manager = Veins::TraCIScenarioManagerAccess().get();
+    traci = manager->getCommandInterface();
+}
+
+void A2TRoadsideUnit11p::associateTrafficlight()
+{
+    for (std::string junctionId: traci->getJunctionIds())
+    {
+        TraCICommandInterface::Junction junction = traci->junction(junctionId);
+        double distanceFromJunction = traci->getDistance(curPosition, junction.getPosition(), false);
+
+        if (distanceFromJunction < 10)
+        {
+            for (std::string tlId: traci->getTrafficlightIds())
+                if (junctionId == tlId) associatedTlId = tlId;
+        }
+    }
+}
+
+void A2TRoadsideUnit11p::update(std::string memorizedAmuId, int highestPriority)
+{
+    this->memorizedAmuId = memorizedAmuId;
+    this->highestPriority = highestPriority;
+    lastUpdate = simTime();
 }

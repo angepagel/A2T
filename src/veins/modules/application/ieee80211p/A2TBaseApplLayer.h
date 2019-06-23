@@ -53,10 +53,10 @@ using Veins::TraCIMobilityAccess;
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-class DemoBaseApplLayer : public BaseApplLayer {
+class A2TBaseApplLayer : public BaseApplLayer {
 
 public:
-    ~DemoBaseApplLayer() override;
+    ~A2TBaseApplLayer() override;
     void initialize(int stage) override;
     void finish() override;
 

@@ -18,11 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
+#include <veins/modules/application/ieee80211p/A2TBaseApplLayer.h>
 
 using namespace Veins;
 
-void DemoBaseApplLayer::initialize(int stage)
+void A2TBaseApplLayer::initialize(int stage)
 {
     BaseApplLayer::initialize(stage);
 
@@ -107,7 +107,7 @@ void DemoBaseApplLayer::initialize(int stage)
     }
 }
 
-simtime_t DemoBaseApplLayer::computeAsynchronousSendingTime(simtime_t interval, ChannelType chan)
+simtime_t A2TBaseApplLayer::computeAsynchronousSendingTime(simtime_t interval, ChannelType chan)
 {
 
     /*
@@ -149,7 +149,7 @@ simtime_t DemoBaseApplLayer::computeAsynchronousSendingTime(simtime_t interval, 
     return firstEvent;
 }
 
-void DemoBaseApplLayer::populateWSM(BaseFrame1609_4* wsm, LAddress::L2Type rcvId, int serial)
+void A2TBaseApplLayer::populateWSM(BaseFrame1609_4* wsm, LAddress::L2Type rcvId, int serial)
 {
     wsm->setRecipientAddress(rcvId);
     wsm->setBitLength(headerLength);
@@ -178,7 +178,7 @@ void DemoBaseApplLayer::populateWSM(BaseFrame1609_4* wsm, LAddress::L2Type rcvId
     }
 }
 
-void DemoBaseApplLayer::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject* details)
+void A2TBaseApplLayer::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject* details)
 {
     Enter_Method_Silent();
     if (signalID == BaseMobility::mobilityStateChangedSignal) {
@@ -189,19 +189,19 @@ void DemoBaseApplLayer::receiveSignal(cComponent* source, simsignal_t signalID, 
     }
 }
 
-void DemoBaseApplLayer::handlePositionUpdate(cObject* obj)
+void A2TBaseApplLayer::handlePositionUpdate(cObject* obj)
 {
     ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getPositionAt(simTime());
     curSpeed = mobility->getCurrentSpeed();
 }
 
-void DemoBaseApplLayer::handleParkingUpdate(cObject* obj)
+void A2TBaseApplLayer::handleParkingUpdate(cObject* obj)
 {
     isParked = mobility->getParkingState();
 }
 
-void DemoBaseApplLayer::handleLowerMsg(cMessage* msg)
+void A2TBaseApplLayer::handleLowerMsg(cMessage* msg)
 {
 
     BaseFrame1609_4* wsm = dynamic_cast<BaseFrame1609_4*>(msg);
@@ -223,7 +223,7 @@ void DemoBaseApplLayer::handleLowerMsg(cMessage* msg)
     delete (msg);
 }
 
-void DemoBaseApplLayer::handleSelfMsg(cMessage* msg)
+void A2TBaseApplLayer::handleSelfMsg(cMessage* msg)
 {
     switch (msg->getKind()) {
     case SEND_BEACON_EVT: {
@@ -247,7 +247,7 @@ void DemoBaseApplLayer::handleSelfMsg(cMessage* msg)
     }
 }
 
-void DemoBaseApplLayer::finish()
+void A2TBaseApplLayer::finish()
 {
     recordScalar("generatedWSMs", generatedWSMs);
     recordScalar("receivedWSMs", receivedWSMs);
@@ -259,14 +259,14 @@ void DemoBaseApplLayer::finish()
     recordScalar("receivedWSAs", receivedWSAs);
 }
 
-DemoBaseApplLayer::~DemoBaseApplLayer()
+A2TBaseApplLayer::~A2TBaseApplLayer()
 {
     cancelAndDelete(sendBeaconEvt);
     cancelAndDelete(sendWSAEvt);
     findHost()->unsubscribe(BaseMobility::mobilityStateChangedSignal, this);
 }
 
-void DemoBaseApplLayer::startService(Channel channel, int serviceId, std::string serviceDescription)
+void A2TBaseApplLayer::startService(Channel channel, int serviceId, std::string serviceDescription)
 {
     if (sendWSAEvt->isScheduled()) {
         error("Starting service although another service was already started");
@@ -281,25 +281,25 @@ void DemoBaseApplLayer::startService(Channel channel, int serviceId, std::string
     scheduleAt(wsaTime, sendWSAEvt);
 }
 
-void DemoBaseApplLayer::stopService()
+void A2TBaseApplLayer::stopService()
 {
     cancelEvent(sendWSAEvt);
     currentOfferedServiceId = -1;
 }
 
-void DemoBaseApplLayer::sendDown(cMessage* msg)
+void A2TBaseApplLayer::sendDown(cMessage* msg)
 {
     checkAndTrackPacket(msg);
     BaseApplLayer::sendDown(msg);
 }
 
-void DemoBaseApplLayer::sendDelayedDown(cMessage* msg, simtime_t delay)
+void A2TBaseApplLayer::sendDelayedDown(cMessage* msg, simtime_t delay)
 {
     checkAndTrackPacket(msg);
     BaseApplLayer::sendDelayedDown(msg, delay);
 }
 
-void DemoBaseApplLayer::checkAndTrackPacket(cMessage* msg)
+void A2TBaseApplLayer::checkAndTrackPacket(cMessage* msg)
 {
     if (dynamic_cast<DemoSafetyMessage*>(msg)) {
         EV_TRACE << "sending down a BSM" << std::endl;

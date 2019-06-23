@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 David Eckhoff <david.eckhoff@fau.de>
+// Copyright (C) 2006-2011 Christoph Sommer <christoph.sommer@uibk.ac.at>
 //
 // Documentation for these modules is at http://veins.car2x.org/
 //
@@ -18,27 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#pragma once
+package org.car2x.veins.modules.application.traci;
+import org.car2x.veins.modules.application.ieee80211p.A2TBaseApplLayer;
 
-#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
-
-namespace Veins {
-
-/**
- * Small RSU Demo using 11p
- */
-class TraCIDemoRSU11p : public DemoBaseApplLayer {
-protected:
-    bool initialized;
-    std::string associatedTlId; /* ID of the traffic light associated to the RSU */
-    long lastMessageTreeId; /* Tree ID of the last message received */
-    simtime_t reinitializationDelay; /* Time before the highest priority known is reinitialized at 0 */
-    std::string lastAmuId;
-    simtime_t lastUpdate;
-    int highestPriority;
-protected:
-    void initialize(int stage);
-    void onWSM(BaseFrame1609_4* wsm) override;
-};
-
-} // namespace Veins
+simple A2TVehicle11p extends A2TBaseApplLayer
+{
+    @class(Veins::A2TVehicle11p);
+    @display("i=block/app2");
+}

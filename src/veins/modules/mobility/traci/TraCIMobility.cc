@@ -232,7 +232,7 @@ void TraCIMobility::changePosition()
                 statistics.totalCO2Emission += co2emission * updateInterval.dbl();
             }
             // -------------------------- A2T --------------------------
-            int congestionSpeed = 5;
+            int congestionSpeed = 5; /* Speed below which a car is considered to be in congestion (in meters) */
 
             /* Congestion time */
             if (speed > 1 && speed < congestionSpeed)

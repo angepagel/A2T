@@ -19,10 +19,10 @@
 //
 
 package org.car2x.veins.modules.application.traci;
-import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
+import org.car2x.veins.modules.application.ieee80211p.A2TBaseApplLayer;
 
-simple TraCIDemo11p extends DemoBaseApplLayer
+simple A2TRoadsideUnit11p extends A2TBaseApplLayer
 {
-    @class(Veins::TraCIDemo11p);
+    @class(Veins::A2TRoadsideUnit11p);
     @display("i=block/app2");
 }

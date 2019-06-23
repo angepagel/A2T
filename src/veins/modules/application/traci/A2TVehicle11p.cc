@@ -18,29 +18,38 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "veins/modules/application/traci/TraCIDemo11p.h"
+#include <veins/modules/application/traci/A2TMessage11p_m.h>
+#include <veins/modules/application/traci/A2TVehicle11p.h>
 
-#include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
 using namespace Veins;
 
-Define_Module(Veins::TraCIDemo11p);
+Define_Module(Veins::A2TVehicle11p);
 
-void TraCIDemo11p::initialize(int stage)
+void A2TVehicle11p::initialize(int stage)
 {
-    DemoBaseApplLayer::initialize(stage);
-    if (stage == 0) {
+    A2TBaseApplLayer::initialize(stage);
+    if (stage == 0)
+    {
+        // ---------------------- Simulation parameters ----------------------
+        // TODO Set these parameters in the omnetpp.ini file
         a2t = true;
-        priority = 0;
-        lastBroadcastAt = simTime();
+        warningDistance = 200; // meters
+        broadcastInterval = 1; // seconds
+        maxHop = 2;
+        minForwardDistance = 100;
+        laneChangeDuration = 6.0; // seconds
+        // ---------------------- Simulation parameters ----------------------
+
         lastMessageTreeId = 0;
-        warningDistance = 200;
+        lastBroadcastAt = simTime();
+        priority = 0;
     }
 }
 
-void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
+void A2TVehicle11p::onWSM(BaseFrame1609_4* frame)
 {
-    TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
+    A2TMessage11p* wsm = check_and_cast<A2TMessage11p*>(frame);
 
     long messageTreeId = frame->getTreeId();
 
@@ -56,8 +65,6 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
 
             if (distanceFromAmbulance <= warningDistance)
             {
-                double laneChangeDuration = 6.0;
-
                 std::string amuLaneId = wsm->getAmuLaneId();
                 std::string amuRoadId = traci->lane(amuLaneId).getRoadId();
                 std::string vehicleType = traciVehicle->getTypeId();
@@ -74,8 +81,6 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
 
             if (hopCount < maxHop) // Repeat the message if it has not exceeded its maximum number of hops
             {
-                double minForwardDistance = 200;
-
                 Coord senderCoord(wsm->getSenderX(), wsm->getSenderY());
                 double distanceFromSender = traci->getDistance(curPosition, senderCoord, false);
 
@@ -86,31 +91,49 @@ void TraCIDemo11p::onWSM(BaseFrame1609_4* frame)
                     wsm->setSenderY(mobility->getPositionAt(simTime()).y);
                     wsm->setHopCount(++hopCount);
                     wsm->setSerial(3);
-                    scheduleAt(simTime() + uniform(0.01, 0.1), wsm->dup());
+                    scheduleAt(simTime() + uniform(0.01,0.1), wsm->dup());
                 }
             }
         }
     }
 }
 
-void TraCIDemo11p::handlePositionUpdate(cObject* obj)
+void A2TVehicle11p::handleSelfMsg(cMessage* msg)
 {
-    DemoBaseApplLayer::handlePositionUpdate(obj);
+    if (A2TMessage11p* wsm = dynamic_cast<A2TMessage11p*>(msg)) {
+        // send this message on the service channel until the counter is 3 or higher.
+        // this code only runs when channel switching is enabled
+        sendDown(wsm->dup());
+        wsm->setSerial(wsm->getSerial() + 1);
+        if (wsm->getSerial() >= 3) {
+            // stop service advertisements
+            stopService();
+            delete (wsm);
+        }
+        else {
+            scheduleAt(simTime() + 1, wsm);
+        }
+    }
+    else {
+        A2TBaseApplLayer::handleSelfMsg(msg);
+    }
+}
+
+void A2TVehicle11p::handlePositionUpdate(cObject* obj)
+{
+    A2TBaseApplLayer::handlePositionUpdate(obj);
 
     if (a2t)
     {
-        simtime_t broadcastInterval = 1; // Interval between the broadcast of a new message (in seconds)
-        int maxHop = 2; // Maximum number of hops of a message
-
         if (traciVehicle->getTypeId() == "ambulance")
         {
-
             if (priority == 0)
             {
                 std::string id = mobility->getExternalId();
 
+                // -----------------------------------
                 if      (id == "amu0")  priority = 2;
-                else if (id == "amu1")  priority = 1;
+                else if (id == "amu1")  priority = 2;
                 else if (id == "amu2")  priority = 2;
             }
 
@@ -119,7 +142,7 @@ void TraCIDemo11p::handlePositionUpdate(cObject* obj)
                 double posX = mobility->getPositionAt(simTime()).x;
                 double posY = mobility->getPositionAt(simTime()).y;
 
-                TraCIDemo11pMessage* wsm = new TraCIDemo11pMessage();
+                A2TMessage11p* wsm = new A2TMessage11p();
                 populateWSM(wsm);
 
                 wsm->setIsFromAmbulance(true);
