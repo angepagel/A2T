@@ -23,6 +23,16 @@ import org.car2x.veins.modules.application.ieee80211p.A2TBaseApplLayer;
 
 simple A2TVehicle11p extends A2TBaseApplLayer
 {
-    @class(Veins::A2TVehicle11p);
-    @display("i=block/app2");
+    parameters:
+        // ---------------------- Simulation parameters ----------------------
+        bool a2t;						// Enable or disable A2T communications
+        int broadcastInterval;    		// [AMU] Interval between messages broadcast (in seconds)
+        int maxHop;                     // Maximum number of hops of a message
+        int warningDistance;            // [A2V] Distance before which a vehicle will react when an ambulance approaches (in meters)
+        double minForwardDistance;      // Minimum distance from which a vehicle is selected to forward the message (in meters)
+        double laneChangeDuration;      // [A2V] Duration for which a vehicle changes lanes (in seconds)
+        // ---------------------- Simulation parameters ----------------------
+        
+        @class(Veins::A2TVehicle11p);
+        @display("i=block/app2");
 }

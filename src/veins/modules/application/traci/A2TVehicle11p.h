@@ -34,7 +34,9 @@ public:
 
 protected:
     // ---------------------- Simulation parameters ----------------------
-    // TODO Set these parameters in the omnetpp.ini file
+    /**
+     * <!> These parameters are set in the omnetpp.ini file <!>
+     */
     bool a2t;                       /* Enable or disable A2T communications */
     simtime_t broadcastInterval;    /* [AMU] Interval between messages broadcast (in seconds) */
     int maxHop;                     /* Maximum number of hops of a message */

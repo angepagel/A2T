@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- debug config -->
+<launch>
+	<copy file="default.net.xml" />
+	<copy file="default.rou.xml" />
+	<copy file="default.poly.xml" />
+	<copy file="default.sumo.cfg" type="config" />
+</launch>
+

@@ -23,6 +23,11 @@ import org.car2x.veins.modules.application.ieee80211p.A2TBaseApplLayer;
 
 simple A2TRoadsideUnit11p extends A2TBaseApplLayer
 {
-    @class(Veins::A2TRoadsideUnit11p);
-    @display("i=block/app2");
+    parameters:
+        // ---------------------- Simulation parameters ----------------------
+        int reinitializationDelay; // Time after which the RSU resets if it has not been updated (in seconds)
+        // ---------------------- Simulation parameters ----------------------
+        
+    	@class(Veins::A2TRoadsideUnit11p);
+    	@display("i=block/app2");
 }

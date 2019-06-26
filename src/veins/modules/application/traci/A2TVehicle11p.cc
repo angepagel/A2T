@@ -32,13 +32,15 @@ void A2TVehicle11p::initialize(int stage)
     if (stage == 0)
     {
         // ---------------------- Simulation parameters ----------------------
-        // TODO Set these parameters in the omnetpp.ini file
-        a2t = true;
-        warningDistance = 200; // meters
-        broadcastInterval = 1; // seconds
-        maxHop = 2;
-        minForwardDistance = 100;
-        laneChangeDuration = 6.0; // seconds
+        /**
+         * <!> These parameters are set in the omnetpp.ini file <!>
+         */
+        a2t = par("a2t").boolValue();
+        warningDistance = par("warningDistance");
+        broadcastInterval = par("broadcastInterval");
+        maxHop = par("maxHop");
+        minForwardDistance = par("minForwardDistance");
+        laneChangeDuration = par("laneChangeDuration");
         // ---------------------- Simulation parameters ----------------------
 
         lastMessageTreeId = 0;

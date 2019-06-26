@@ -32,8 +32,10 @@ void A2TRoadsideUnit11p::initialize(int stage)
     if (stage == 0)
     {
         // ---------------------- Simulation parameters ----------------------
-        // TODO Set these parameters in the omnetpp.ini file
-        reinitializationDelay = 5; // seconds
+        /**
+         * <!> These parameters are set in the omnetpp.ini file <!>
+         */
+        reinitializationDelay = par("reinitializationDelay");
         // ---------------------- Simulation parameters ----------------------
 
         initialized = false;

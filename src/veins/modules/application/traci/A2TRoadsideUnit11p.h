@@ -34,7 +34,9 @@ public:
 
 protected:
     // ---------------------- Simulation parameters ----------------------
-    // TODO Set these parameters in the omnetpp.ini file
+    /**
+     * <!> These parameters are set in the omnetpp.ini file <!>
+     */
     simtime_t reinitializationDelay; /* Time after which the RSU resets if it has not been updated (in seconds) */
     // ---------------------- Simulation parameters ----------------------
 
